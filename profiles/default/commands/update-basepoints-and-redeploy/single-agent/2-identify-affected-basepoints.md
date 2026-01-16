@@ -1,0 +1,231 @@
+The SECOND STEP is to identify which basepoints are affected by the detected changes:
+
+## Phase 2 Actions
+
+### 2.1 Load Changed Files
+
+Load the changed files list from Phase 1:
+
+```bash
+CACHE_DIR="agent-os/output/update-basepoints-and-redeploy/cache"
+
+if [ ! -f "$CACHE_DIR/changed-files.txt" ]; then
+    echo "❌ ERROR: Changed files list not found."
+    echo "   Run Phase 1 (detect-changes) first."
+    exit 1
+fi
+
+CHANGED_FILES=$(cat "$CACHE_DIR/changed-files.txt")
+TOTAL_CHANGES=$(echo "$CHANGED_FILES" | grep -v "^$" | wc -l | tr -d ' ')
+
+echo "📋 Loaded $TOTAL_CHANGES changed files"
+```
+
+### 2.2 Map Files to Basepoints
+
+Apply mapping rules to determine which basepoints are affected:
+
+**Mapping Rules:**
+
+| Changed File Pattern | Affected Basepoint |
+|---------------------|-------------------|
+| `scripts/*.sh` | `basepoints/scripts/agent-base-scripts.md` |
+| `profiles/default/commands/*` | `basepoints/profiles/default/commands/agent-base-commands.md` |
+| `profiles/default/workflows/*` | `basepoints/profiles/default/workflows/agent-base-workflows.md` |
+| `profiles/default/standards/*` | `basepoints/profiles/default/standards/agent-base-standards.md` |
+| `profiles/default/agents/*` | `basepoints/profiles/default/agents/agent-base-agents.md` |
+| `profiles/default/*` | `basepoints/profiles/default/agent-base-default.md` |
+| `profiles/*` | `basepoints/profiles/agent-base-profiles.md` |
+| `agent-os/product/*` | _(flag for knowledge re-extraction only)_ |
+| `*` (root files) | `basepoints/agent-base-self.md` |
+
+**Mapping Logic:**
+
+```bash
+# Initialize affected basepoints list
+> "$CACHE_DIR/affected-basepoints.txt"
+> "$CACHE_DIR/affected-basepoints-unique.txt"
+
+# Process each changed file
+echo "$CHANGED_FILES" | while read changed_file; do
+    if [ -z "$changed_file" ]; then
+        continue
+    fi
+    
+    # Normalize path (remove leading ./)
+    changed_file=$(echo "$changed_file" | sed 's|^\./||')
+    
+    # Determine affected basepoint based on path
+    case "$changed_file" in
+        scripts/*)
+            echo "agent-os/basepoints/scripts/agent-base-scripts.md" >> "$CACHE_DIR/affected-basepoints.txt"
+            ;;
+        profiles/default/commands/*)
+            echo "agent-os/basepoints/profiles/default/commands/agent-base-commands.md" >> "$CACHE_DIR/affected-basepoints.txt"
+            ;;
+        profiles/default/workflows/*)
+            echo "agent-os/basepoints/profiles/default/workflows/agent-base-workflows.md" >> "$CACHE_DIR/affected-basepoints.txt"
+            ;;
+        profiles/default/standards/*)
+            echo "agent-os/basepoints/profiles/default/standards/agent-base-standards.md" >> "$CACHE_DIR/affected-basepoints.txt"
+            ;;
+        profiles/default/agents/*)
+            echo "agent-os/basepoints/profiles/default/agents/agent-base-agents.md" >> "$CACHE_DIR/affected-basepoints.txt"
+            ;;
+        profiles/default/*)
+            echo "agent-os/basepoints/profiles/default/agent-base-default.md" >> "$CACHE_DIR/affected-basepoints.txt"
+            ;;
+        profiles/*)
+            echo "agent-os/basepoints/profiles/agent-base-profiles.md" >> "$CACHE_DIR/affected-basepoints.txt"
+            ;;
+        agent-os/product/*)
+            # Product files don't have basepoints, but flag for knowledge re-extraction
+            echo "PRODUCT_CHANGE:$changed_file" >> "$CACHE_DIR/product-changes-detail.txt"
+            ;;
+        agent-os/*)
+            # Ignore other agent-os files (output, specs, etc.)
+            ;;
+        *)
+            # Root-level files affect root basepoint
+            echo "agent-os/basepoints/agent-base-self.md" >> "$CACHE_DIR/affected-basepoints.txt"
+            ;;
+    esac
+done
+
+# Remove duplicates
+sort -u "$CACHE_DIR/affected-basepoints.txt" > "$CACHE_DIR/affected-basepoints-unique.txt"
+mv "$CACHE_DIR/affected-basepoints-unique.txt" "$CACHE_DIR/affected-basepoints.txt"
+```
+
+### 2.3 Calculate Parent Chain
+
+For each affected basepoint, identify parent basepoints that also need updating:
+
+```bash
+# Parent chain propagation
+# If a child basepoint changes, its parent must also be updated
+
+> "$CACHE_DIR/parent-basepoints.txt"
+
+while read basepoint; do
+    if [ -z "$basepoint" ]; then
+        continue
+    fi
+    
+    # Extract parent path
+    PARENT_DIR=$(dirname "$basepoint")
+    
+    # Walk up the tree to find parent basepoints
+    while [ "$PARENT_DIR" != "agent-os/basepoints" ] && [ "$PARENT_DIR" != "." ]; do
+        PARENT_NAME=$(basename "$PARENT_DIR")
+        PARENT_BASEPOINT="$PARENT_DIR/agent-base-$PARENT_NAME.md"
+        
+        if [ -f "$PARENT_BASEPOINT" ]; then
+            echo "$PARENT_BASEPOINT" >> "$CACHE_DIR/parent-basepoints.txt"
+        fi
+        
+        PARENT_DIR=$(dirname "$PARENT_DIR")
+    done
+done < "$CACHE_DIR/affected-basepoints.txt"
+
+# Add parents to affected list (unique)
+cat "$CACHE_DIR/affected-basepoints.txt" "$CACHE_DIR/parent-basepoints.txt" 2>/dev/null | sort -u > "$CACHE_DIR/all-affected-basepoints.txt"
+mv "$CACHE_DIR/all-affected-basepoints.txt" "$CACHE_DIR/affected-basepoints.txt"
+
+# Always add headquarter if any basepoint is affected
+if [ -s "$CACHE_DIR/affected-basepoints.txt" ]; then
+    echo "agent-os/basepoints/headquarter.md" >> "$CACHE_DIR/affected-basepoints.txt"
+fi
+```
+
+### 2.4 Check Product File Changes
+
+Determine if product files changed (requires knowledge re-extraction):
+
+```bash
+PRODUCT_CHANGED=$(cat "$CACHE_DIR/product-files-changed.txt" 2>/dev/null || echo "false")
+
+if [ "$PRODUCT_CHANGED" = "true" ]; then
+    echo "📦 Product files changed - knowledge re-extraction required"
+    echo "true" > "$CACHE_DIR/requires-knowledge-reextraction.txt"
+else
+    echo "false" > "$CACHE_DIR/requires-knowledge-reextraction.txt"
+fi
+```
+
+### 2.5 Generate Affected Basepoints Summary
+
+Create a summary of affected basepoints:
+
+```bash
+AFFECTED_COUNT=$(wc -l < "$CACHE_DIR/affected-basepoints.txt" | tr -d ' ')
+
+cat > "$CACHE_DIR/affected-basepoints-summary.md" << EOF
+# Affected Basepoints Summary
+
+**Analysis Time:** $(date -u +%Y-%m-%dT%H:%M:%SZ)
+**Total Changed Files:** $TOTAL_CHANGES
+**Affected Basepoints:** $AFFECTED_COUNT
+**Product Changes:** $PRODUCT_CHANGED
+
+## Affected Basepoints
+
+$(cat "$CACHE_DIR/affected-basepoints.txt" | sed 's/^/- /')
+
+## File-to-Basepoint Mapping
+
+| Changed File | Affected Basepoint |
+|-------------|-------------------|
+$(# Generate mapping table from logs)
+
+## Update Order
+
+Basepoints will be updated in this order (children first, parents last):
+
+1. Module-level basepoints (deepest first)
+2. Parent basepoints (bottom-up)
+3. Headquarter (last)
+EOF
+```
+
+## Expected Outputs
+
+After this phase, the following files should exist:
+
+| File | Description |
+|------|-------------|
+| `affected-basepoints.txt` | List of basepoints to update |
+| `affected-basepoints-summary.md` | Human-readable summary |
+| `requires-knowledge-reextraction.txt` | Flag for knowledge re-extraction |
+
+## Display confirmation and next step
+
+Once basepoint identification is complete, output the following message:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ PHASE 2 COMPLETE: Identify Affected Basepoints
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 Analysis Results:
+   Changed files:       [N]
+   Affected basepoints: [N]
+   Product changes:     [Yes/No]
+
+📋 Affected Basepoints:
+   [List of affected basepoint paths]
+
+📦 Knowledge Re-extraction: [Required/Not required]
+
+📋 Summary: agent-os/output/update-basepoints-and-redeploy/cache/affected-basepoints-summary.md
+
+NEXT STEP 👉 Run Phase 3: `3-update-basepoints.md`
+```
+
+{{UNLESS standards_as_claude_code_skills}}
+## User Standards & Preferences Compliance
+
+IMPORTANT: Ensure that your basepoint identification process aligns with the user's preferences and standards as detailed in the following files:
+
+{{standards/global/*}}
+{{ENDUNLESS standards_as_claude_code_skills}}

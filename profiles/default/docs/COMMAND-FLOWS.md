@@ -1,0 +1,825 @@
+# Command Flows Reference
+
+This document provides detailed documentation of all commands in the Geist system, including their phases, inputs, outputs, and integration points.
+
+---
+
+## Table of Contents
+
+- [Specialization Commands](#specialization-commands)
+  - [adapt-to-product](#1-adapt-to-product)
+  - [create-basepoints](#2-create-basepoints)
+  - [deploy-agents](#3-deploy-agents)
+  - [cleanup-agent-os](#4-cleanup-agent-os)
+  - [update-basepoints-and-redeploy](#5-update-basepoints-and-redeploy)
+- [Development Commands](#development-commands)
+  - [shape-spec](#6-shape-spec)
+  - [write-spec](#7-write-spec)
+  - [create-tasks](#8-create-tasks)
+  - [implement-tasks](#9-implement-tasks)
+  - [orchestrate-tasks](#10-orchestrate-tasks)
+- [Command Cycle Flow](#command-cycle-flow)
+- [Knowledge Integration](#knowledge-integration)
+
+---
+
+## Specialization Commands
+
+These commands are used during initial setup to create and specialize your Agent OS instance.
+
+---
+
+### 1. adapt-to-product
+
+**Purpose**: Extract product information from an existing codebase with automatic detection.
+
+**Location**: `commands/adapt-to-product/`
+
+**Prerequisites**: None
+
+**Outputs**:
+- `agent-os/product/mission.md`
+- `agent-os/product/roadmap.md`
+- `agent-os/product/tech-stack.md`
+- `agent-os/config/project-profile.yml`
+- `agent-os/config/enriched-knowledge/`
+
+#### Phases
+
+```
+Phase 1: Setup & Information Gathering (Enhanced)
+├── Step 0.1: Automatic Detection
+│   └── {{workflows/detection/detect-project-profile}}
+│       ├── detect-tech-stack.md
+│       │   └── Parse: package.json, Cargo.toml, go.mod, requirements.txt
+│       ├── detect-commands.md
+│       │   └── Extract: build, test, lint from scripts/Makefile/CI
+│       ├── detect-architecture.md
+│       │   └── Analyze: directory structure, module boundaries
+│       └── detect-security-level.md
+│           └── Check: auth deps, secrets management, SSL
+│
+├── Step 0.2: Web Research
+│   └── {{workflows/research/research-orchestrator}}
+│       ├── research-library.md
+│       │   └── Search: "[library] best practices", "known issues", "CVE"
+│       ├── research-stack-patterns.md
+│       │   └── Search: "[stack] architecture patterns"
+│       ├── research-security.md
+│       │   └── Search: "[dep] vulnerabilities"
+│       └── version-analysis.md
+│           └── Compare: detected vs latest versions
+│
+├── Step 0.3: Present & Confirm
+│   └── {{workflows/detection/present-and-confirm}}
+│       └── Show: detected profile, allow overrides
+│
+├── Step 0.4: Minimal Questions
+│   └── {{workflows/detection/question-templates}}
+│       └── Ask ONLY:
+│           1. Compliance requirements? [None/SOC2/HIPAA/GDPR]
+│           2. Human review preference? [Minimal/Moderate/High]
+│
+└── Step 0.5: Store Profile
+    └── Save to: agent-os/config/project-profile.yml
+                 agent-os/config/enriched-knowledge/
+
+Phase 2: Analyze Codebase
+└── Analyze README, structure, patterns
+
+Phase 3: Create Mission
+└── Generate: agent-os/product/mission.md
+
+Phase 4: Create Roadmap
+└── Generate: agent-os/product/roadmap.md
+
+Phase 5: Create Tech Stack
+└── Generate: agent-os/product/tech-stack.md
+
+Phase 6: Review & Combine Knowledge
+└── Verify consistency, combine into unified knowledge
+
+Phase 7: Navigate to Next Command
+└── Display: "NEXT STEP: Run /create-basepoints"
+```
+
+#### Detection Details
+
+**What Gets Detected Automatically**:
+
+| Category | Detection Method | Confidence |
+|----------|-----------------|------------|
+| Language | Config files (package.json, Cargo.toml, etc.) | High |
+| Framework | Dependencies analysis | High |
+| Build command | package.json scripts, Makefile, CI configs | High |
+| Test command | Test configs, CI pipelines | High |
+| Lint command | .eslintrc, Makefile, package.json | High |
+| Security level | Auth deps, secrets management | Medium |
+| Complexity | File count, module count | High |
+| Architecture | Directory structure analysis | Medium |
+
+**Questions Asked (Max 2-3)**:
+
+| Question | Why Asked | Can't Detect From |
+|----------|-----------|-------------------|
+| Compliance requirements | Regulatory, not in code | Code analysis |
+| Human review preference | Subjective user choice | Code analysis |
+| (Only if ambiguous) | Detection confidence < 80% | Varies |
+
+---
+
+### 2. create-basepoints
+
+**Purpose**: Create comprehensive codebase documentation at all abstraction layers.
+
+**Location**: `commands/create-basepoints/`
+
+**Prerequisites**: Product files (`mission.md`, `roadmap.md`, `tech-stack.md`)
+
+**Outputs**:
+- `agent-os/basepoints/headquarter.md`
+- `agent-os/basepoints/[layer]/[module]/agent-base-[module].md`
+
+#### Phases
+
+```
+Phase 1: Validate Prerequisites (Enhanced)
+├── Step 0.1: Load Project Profile
+│   └── if [ -f "agent-os/config/project-profile.yml" ]; then
+│       Load existing profile (no re-detection)
+│   └── else
+│       Run detection workflow
+│
+├── Step 0.2: Architecture Research (if not done)
+│   └── {{workflows/research/research-orchestrator}}
+│       └── Research: architecture patterns for detected stack
+│
+├── Step 0.3: Ask Only if Unclear
+│   └── Only if module detection confidence < 80%
+│
+└── Validate: product files exist
+
+Phase 2: Detect Abstraction Layers
+└── Analyze: directory structure, identify layers
+
+Phase 3: Mirror Project Structure
+└── Create: basepoints directory structure
+
+Phase 4: Analyze Codebase
+└── Deep analysis: patterns, standards, flows
+
+Phase 5: Generate Module Basepoints
+└── For each module:
+    └── Create: agent-base-[module].md
+        ├── Patterns section
+        ├── Standards section
+        ├── Flows section
+        ├── Strategies section
+        └── Testing section
+
+Phase 6: Generate Parent Basepoints
+└── Aggregate: child basepoints into parent
+
+Phase 7: Generate Headquarter
+└── Create: headquarter.md (project overview)
+```
+
+#### Knowledge Extracted
+
+| Section | Contents | Usage |
+|---------|----------|-------|
+| Patterns | Design, coding, architectural patterns | Reused in implementations |
+| Standards | Naming, coding style, structure | Enforced in code reviews |
+| Flows | Data, control, dependency flows | Understood for changes |
+| Strategies | Implementation, architectural strategies | Guide decisions |
+| Testing | Testing approaches, coverage | Guide test writing |
+
+---
+
+### 3. deploy-agents
+
+**Purpose**: Transform abstract templates into project-specific implementations.
+
+**Location**: `commands/deploy-agents/`
+
+**Prerequisites**: 
+- Basepoints (`headquarter.md`, module basepoints)
+- Product files (`mission.md`, `roadmap.md`, `tech-stack.md`)
+
+**Outputs**:
+- Specialized commands in `agent-os/commands/`
+- Specialized workflows in `agent-os/workflows/`
+- Specialized standards in `agent-os/standards/`
+- Configured validation commands
+
+#### Phases
+
+```
+Phase 1: Validate Prerequisites (Enhanced)
+├── Step 0: Load Project Knowledge
+│   ├── Load: project-profile.yml
+│   │   └── Extract: language, framework, security, commands
+│   ├── Load: enriched-knowledge/
+│   │   └── Check: security-notes.md, version-analysis.md
+│   ├── Ask: ONLY if user preferences not set
+│   └── Determine: specialization hints
+│       └── If complexity=complex OR security=high:
+│           RECOMMENDED_WORKFLOW_COMPLEXITY="comprehensive"
+│
+└── Validate: basepoints + product files exist
+
+Phase 2: Extract Basepoints Knowledge
+└── {{workflows/basepoints/extract-basepoints-knowledge-automatic}}
+
+Phase 3: Extract Product Knowledge
+└── Parse: mission.md, roadmap.md, tech-stack.md
+
+Phase 4: Merge Knowledge & Resolve Conflicts
+├── Combine: all knowledge sources
+└── Human review: if conflicts detected
+
+Phase 5: Specialize shape-spec & write-spec
+├── Replace: placeholders with actual values
+└── Inject: project-specific patterns
+
+Phase 6: Specialize Task Commands
+├── create-tasks
+├── implement-tasks
+└── orchestrate-tasks
+
+Phase 7: Update Supporting Structures
+├── Standards
+├── Workflows
+└── Agents
+
+Phase 8: Specialize Standards (Enhanced)
+├── Step 5: Specialize Validation Commands
+│   ├── Detect: tech stack from project files
+│   ├── Map: to validation commands
+│   │   ├── Node.js → npm run build/test/lint
+│   │   ├── Rust → cargo build/test/clippy
+│   │   ├── Go → go build/test/vet
+│   │   └── Python → pytest, flake8, mypy
+│   └── Replace: {{PROJECT_*_COMMAND}} placeholders
+│
+└── Update: validation-commands.md
+
+Phase 9: Specialize Agents
+└── Adapt: agent behaviors for project
+
+Phase 10: Specialize Workflows
+└── Adapt: workflow complexity for project
+
+Phase 11: Adapt Structure & Finalize
+├── Run: comprehensive validation
+└── Generate: deployment report
+```
+
+#### Specialization Details
+
+**Placeholder Replacement**:
+
+| Placeholder | Replaced With | Source |
+|------------|--------------|--------|
+| `{{BASEPOINTS_PATH}}` | `agent-os/basepoints` | Convention |
+| `{{PROJECT_BUILD_COMMAND}}` | `npm run build` | Detection |
+| `{{PROJECT_TEST_COMMAND}}` | `npm test` | Detection |
+| `{{PROJECT_LINT_COMMAND}}` | `npm run lint` | Detection |
+| `{{workflows/validation/...}}` | Actual workflow path | Convention |
+
+---
+
+### 4. cleanup-agent-os
+
+**Purpose**: Clean up and verify knowledge completeness in deployed Agent OS.
+
+**Location**: `commands/cleanup-agent-os/`
+
+**Prerequisites**: Deployed Agent OS
+
+**Outputs**:
+- Cleaned commands (no placeholders)
+- Knowledge verification report
+- Recommendations
+
+#### Phases
+
+```
+Phase 1: Validate & Run Validation
+├── Check: agent-os deployment
+└── Run: comprehensive validation
+
+Phase 2: Clean Placeholders
+└── Replace: remaining {{PLACEHOLDER}} with values
+
+Phase 3: Remove Unnecessary Logic
+└── Remove: project-agnostic conditionals
+
+Phase 4: Fix Broken References
+└── Fix: @agent-os/ references
+
+Phase 5: Verify Knowledge Completeness
+├── Verify: basepoints completeness
+│   ├── headquarter.md exists
+│   ├── module basepoints cover all layers
+│   └── required sections present
+├── Verify: product knowledge
+│   ├── mission.md, roadmap.md, tech-stack.md
+│   └── content completeness
+├── Detect: missing information
+└── Coverage: analysis
+
+Phase 6: Generate Report
+├── Statistics
+├── Recommendations
+└── Knowledge gaps
+```
+
+---
+
+### 5. update-basepoints-and-redeploy
+
+**Purpose**: Incrementally update basepoints after codebase changes.
+
+**Location**: `commands/update-basepoints-and-redeploy/`
+
+**Prerequisites**: Deployed Agent OS
+
+**Outputs**:
+- Updated basepoints
+- Re-specialized commands
+- Update report
+
+#### Phases
+
+```
+Phase 1: Detect Changes
+├── Use: git diff (preferred) or timestamps
+├── Categorize: added, modified, deleted
+└── Filter: irrelevant files
+
+Phase 2: Identify Affected Basepoints
+├── Map: changed files to basepoints
+└── Calculate: parent propagation
+
+Phase 3: Update Basepoints
+├── Process: children before parents
+├── Create: backups
+└── Merge: new content
+
+Phase 4: Re-extract Knowledge
+├── Load: existing cache
+└── Extract: from updated only
+
+Phase 5: Re-specialize Commands
+├── Re-specialize: all 5 core commands
+└── Update: standards, workflows, agents
+
+Phase 6: Validate & Report
+├── Validate: all updates
+└── Generate: report
+```
+
+---
+
+## Development Commands
+
+These commands are used during feature development after Agent OS is specialized.
+
+---
+
+### 6. shape-spec
+
+**Purpose**: Research and shape a new feature specification.
+
+**Location**: `commands/shape-spec/`
+
+**Prerequisites**: Specialized Agent OS
+
+**Outputs**:
+- `agent-os/specs/[spec-name]/planning/requirements.md`
+- `agent-os/specs/[spec-name]/planning/initialization.md`
+- `agent-os/specs/[spec-name]/implementation/cache/basepoints-knowledge.md`
+- `agent-os/specs/[spec-name]/implementation/cache/detected-layer.txt`
+
+#### Phases
+
+```
+Phase 1: Initialize Spec
+├── Create: spec folder structure
+│   ├── planning/
+│   ├── planning/visuals/
+│   └── implementation/cache/
+└── Store: feature description in initialization.md
+
+Phase 2: Shape Spec (Enhanced)
+├── Step 1: Extract Basepoints Knowledge
+│   └── {{workflows/basepoints/extract-basepoints-knowledge-automatic}}
+│       ├── Read: headquarter.md
+│       ├── Detect: abstraction layer
+│       ├── Find: relevant module basepoints
+│       └── Extract: Patterns, Standards, Flows, Strategies
+│
+├── Step 2: Detect Abstraction Layer
+│   └── {{workflows/scope-detection/detect-abstraction-layer}}
+│       └── Store: detected-layer.txt
+│
+├── Step 3: Inject Knowledge into Questions
+│   └── Use: extracted patterns to suggest approaches
+│
+├── Step 4: Gather Requirements
+│   └── Q&A: with user
+│
+├── Step 5: Suggest Reusable Modules
+│   └── Based on: basepoints patterns
+│
+├── Step 6: Validate
+│   └── {{workflows/validation/validate-output-exists}}
+│
+└── Step 7: Generate Report
+    └── {{workflows/validation/generate-validation-report}}
+```
+
+#### Knowledge Integration
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    SHAPE-SPEC KNOWLEDGE FLOW                     │
+└─────────────────────────────────────────────────────────────────┘
+
+Feature Description
+        │
+        ▼
+┌─────────────────┐
+│ Detect Layer    │ → detected-layer.txt (e.g., "PROFILES")
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ Extract         │ → basepoints-knowledge.md
+│ Knowledge       │   • Relevant patterns
+└────────┬────────┘   • Applicable standards
+         │            • Related flows
+         ▼            • Suggested strategies
+┌─────────────────┐
+│ Generate        │ → requirements.md
+│ Requirements    │   (informed by patterns)
+└─────────────────┘
+```
+
+---
+
+### 7. write-spec
+
+**Purpose**: Write detailed specification from requirements.
+
+**Location**: `commands/write-spec/`
+
+**Prerequisites**: `requirements.md` (from shape-spec)
+
+**Outputs**:
+- `agent-os/specs/[spec-name]/spec.md`
+- `agent-os/specs/[spec-name]/implementation/cache/resources-consulted.md`
+
+#### Flow
+
+```
+├── Step 1: Load Knowledge Cache
+│   └── Read: basepoints-knowledge.md, detected-layer.txt
+│
+├── Step 2: Reference Standards
+│   └── Include: applicable standards in spec
+│
+├── Step 3: Suggest Existing Code
+│   └── Based on: patterns in basepoints
+│
+├── Step 4: Write Specification
+│   └── Generate: spec.md
+│
+├── Step 5: Detect Trade-offs
+│   └── {{workflows/human-review/review-trade-offs}}
+│
+├── Step 6: Validate
+│   └── {{workflows/validation/validate-output-exists}}
+│
+└── Step 7: Generate Resources List
+    └── Create: resources-consulted.md
+```
+
+---
+
+### 8. create-tasks
+
+**Purpose**: Break specification into actionable tasks.
+
+**Location**: `commands/create-tasks/`
+
+**Prerequisites**: `spec.md` (from write-spec)
+
+**Outputs**:
+- `agent-os/specs/[spec-name]/tasks.md`
+
+#### Flow
+
+```
+├── Step 1: Load Knowledge
+│   └── Read: basepoints-knowledge.md
+│
+├── Step 2: Analyze Spec
+│   └── Parse: spec.md for requirements
+│
+├── Step 3: Create Task Groups
+│   └── Organize: by feature area or component
+│
+├── Step 4: Include Implementation Hints
+│   └── From: patterns in basepoints
+│
+├── Step 5: Reference Strategies
+│   └── In: task descriptions
+│
+├── Step 6: Add Acceptance Criteria
+│   └── For: each task
+│
+├── Step 7: Validate
+│   └── {{workflows/validation/validate-output-exists}}
+│
+└── Step 8: Update Report
+    └── Update: validation-report.md
+```
+
+---
+
+### 9. implement-tasks
+
+**Purpose**: Implement tasks from task list.
+
+**Location**: `commands/implement-tasks/`
+
+**Prerequisites**: `tasks.md` (from create-tasks)
+
+**Outputs**:
+- Code changes
+- `implementation/cache/validation-report.md`
+
+#### Flow
+
+```
+Phase 1: Determine Tasks
+└── Parse: tasks.md for uncompleted tasks
+
+Phase 2: Implement Tasks (Enhanced)
+├── Step 1: Load Patterns
+│   └── Read: module-specific patterns from cache
+│
+├── Step 2: Provide Context
+│   └── Inject: coding patterns into implementation
+│
+├── Step 3: Reference Standards
+│   └── Apply: code style from standards
+│
+├── Step 4: Implement
+│   └── Write: code changes
+│
+├── Step 5: Validate Implementation
+│   └── {{workflows/validation/validate-implementation}}
+│       ├── Run: {{PROJECT_BUILD_COMMAND}}
+│       ├── Run: {{PROJECT_TEST_COMMAND}}
+│       ├── Run: {{PROJECT_LINT_COMMAND}}
+│       └── Run: {{PROJECT_TYPECHECK_COMMAND}}
+│
+└── Step 6: Mark Complete
+    └── Update: tasks.md with [x]
+
+Phase 3: Verify Implementation
+└── Final validation and testing
+```
+
+---
+
+### 10. orchestrate-tasks
+
+**Purpose**: Coordinate multi-agent task implementation.
+
+**Location**: `commands/orchestrate-tasks/`
+
+**Prerequisites**: `tasks.md` (from create-tasks)
+
+**Outputs**:
+- `agent-os/specs/[spec-name]/orchestration.yml`
+- `agent-os/specs/[spec-name]/implementation/prompts/[N]-[task-group].md`
+
+#### Flow
+
+```
+├── Step 1: Extract Sub-Agent Context
+│   └── Match: tasks to relevant module basepoints
+│
+├── Step 2: Create Task Groups
+│   └── Parse: tasks.md for task groups
+│
+├── Step 3: Match Basepoints
+│   └── For each group: find relevant basepoints
+│
+├── Step 4: Generate Orchestration
+│   └── Create: orchestration.yml
+│
+├── Step 5: Generate Prompts
+│   └── For each group:
+│       Create: [N]-[task-group].md
+│       ├── Task description
+│       ├── Context references
+│       ├── Basepoints knowledge injection
+│       ├── Standards compliance
+│       ├── Validation step
+│       ├── Human review check
+│       └── Auto-proceed to next prompt
+│
+└── Step 6: Validate
+    └── Update: validation-report.md
+```
+
+#### Prompt Template
+
+```markdown
+# Task Group [N]: [Title]
+
+## Task to Implement
+[Task description and subtasks]
+
+## Context
+- @agent-os/specs/[spec]/spec.md
+- @agent-os/specs/[spec]/planning/requirements.md
+
+## Basepoints Knowledge Context
+[Extracted patterns and standards relevant to this task group]
+
+## Implementation Instructions
+{{workflows/implementation/implement-tasks}}
+
+## Standards Compliance
+{{standards/global/*}}
+
+## ✅ Completion and Validation
+
+### Step 1: Run Implementation Validation
+```bash
+SPEC_PATH="agent-os/specs/[spec]"
+{{workflows/validation/validate-implementation}}
+```
+
+### Step 2: Mark Completion
+- Mark tasks complete [x] in tasks.md
+- Add ✅ marker to Task Group [N]
+
+### Step 3: Check Human Review
+```bash
+{{workflows/human-review/review-trade-offs}}
+```
+
+### Step 4: Proceed to Next Prompt
+- If validation passes and no review needed → auto-proceed
+- **Automatically proceeding to Prompt [N+1]**
+```
+
+---
+
+## Command Cycle Flow
+
+The complete development cycle from spec to implementation:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         COMMAND CYCLE FLOW                                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    ┌──────────────┐
+    │  shape-spec  │  "Add user authentication"
+    │              │
+    │  Extracts:   │  • Basepoints knowledge
+    │              │  • Abstraction layer
+    │              │  • Relevant patterns
+    └──────┬───────┘
+           │
+           │ Outputs: requirements.md, initialization.md
+           │          cache/basepoints-knowledge.md
+           │          cache/detected-layer.txt
+           │
+    ┌──────▼───────┐
+    │  write-spec  │
+    │              │
+    │  Uses:       │  • Extracted knowledge
+    │              │  • Standards reference
+    │              │  • Trade-off detection
+    └──────┬───────┘
+           │
+           │ Outputs: spec.md
+           │          cache/resources-consulted.md
+           │
+    ┌──────▼───────┐
+    │ create-tasks │
+    │              │
+    │  Includes:   │  • Implementation hints
+    │              │  • Strategy references
+    │              │  • Acceptance criteria
+    └──────┬───────┘
+           │
+           │ Outputs: tasks.md
+           │
+           ├─────────────────────────────────┐
+           │                                 │
+    ┌──────▼───────┐                  ┌──────▼────────────┐
+    │ implement-   │                  │ orchestrate-      │
+    │ tasks        │                  │ tasks             │
+    │              │                  │                   │
+    │  Validates:  │                  │  Generates:       │
+    │  • Build     │                  │  • orchestration  │
+    │  • Test      │                  │  • prompts/       │
+    │  • Lint      │                  │  • with knowledge │
+    └──────────────┘                  └───────────────────┘
+```
+
+---
+
+## Knowledge Integration
+
+### Knowledge Sources
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         KNOWLEDGE SOURCES                                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   DETECTION     │     │    RESEARCH     │     │   BASEPOINTS    │
+│                 │     │                 │     │                 │
+│ project-profile │     │ library-research│     │ headquarter.md  │
+│ .yml            │     │ .md             │     │                 │
+│                 │     │                 │     │ agent-base-     │
+│ • tech stack    │     │ stack-best-     │     │ *.md            │
+│ • commands      │     │ practices.md    │     │                 │
+│ • security      │     │                 │     │ • Patterns      │
+│ • complexity    │     │ security-notes  │     │ • Standards     │
+│                 │     │ .md             │     │ • Flows         │
+│                 │     │                 │     │ • Strategies    │
+│                 │     │ version-analysis│     │                 │
+│                 │     │ .md             │     │                 │
+└────────┬────────┘     └────────┬────────┘     └────────┬────────┘
+         │                       │                       │
+         └───────────────────────┼───────────────────────┘
+                                 │
+                                 ▼
+                    ┌─────────────────────┐
+                    │   UNIFIED KNOWLEDGE │
+                    │                     │
+                    │ Used by:            │
+                    │ • shape-spec        │
+                    │ • write-spec        │
+                    │ • create-tasks      │
+                    │ • implement-tasks   │
+                    │ • orchestrate-tasks │
+                    └─────────────────────┘
+```
+
+### Knowledge Usage by Command
+
+| Command | Detection | Research | Basepoints | Product |
+|---------|-----------|----------|------------|---------|
+| adapt-to-product | ✅ Creates | ✅ Creates | - | ✅ Creates |
+| create-basepoints | ✅ Loads | ✅ Adds | ✅ Creates | ✅ Uses |
+| deploy-agents | ✅ Uses | ✅ Uses | ✅ Uses | ✅ Uses |
+| shape-spec | - | - | ✅ Extracts | - |
+| write-spec | - | - | ✅ Uses | - |
+| create-tasks | - | - | ✅ Uses | - |
+| implement-tasks | - | - | ✅ Uses | - |
+| orchestrate-tasks | - | - | ✅ Injects | - |
+
+---
+
+## Validation Integration
+
+### Validation at Each Stage
+
+| Command | Validation Run | Exit on Failure |
+|---------|---------------|-----------------|
+| shape-spec | `validate-output-exists` | Warning |
+| write-spec | `validate-output-exists`, `review-trade-offs` | Warning |
+| create-tasks | `validate-output-exists` | Warning |
+| implement-tasks | `validate-implementation` | Error |
+| orchestrate-tasks | `validate-output-exists` | Warning |
+
+### validate-implementation Details
+
+```bash
+# Runs project-specific validation
+{{PROJECT_BUILD_COMMAND}}    # e.g., npm run build
+{{PROJECT_TEST_COMMAND}}     # e.g., npm test
+{{PROJECT_LINT_COMMAND}}     # e.g., npm run lint
+{{PROJECT_TYPECHECK_COMMAND}}# e.g., tsc --noEmit
+
+# Returns exit code 0 (pass) or 1 (fail)
+# Generates: implementation-validation-report.md
+```
+
+---
+
+*Last Updated: 2026-01-16*
