@@ -22,6 +22,9 @@
 # Agent OS specific (installed instance)
 agent-os/
 
+# Local changelog (not tracked)
+CHANGELOG.md
+
 # Node modules (if any)
 node_modules/
 package-lock.json
