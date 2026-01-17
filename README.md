@@ -3,7 +3,7 @@
 
 ## Why Use Geist?
 
-**Geist gives your AI coding tools (Cursor, Claude Desktop, etc.) the "memory" they don't have.**
+**Geist gives your AI coding tools (Cursor, Claude Desktop, etc.)  a cache memory that structured and specialized to your codebase. **
 
 When you use AI to build features, it doesn't know your project's patterns, architecture, or conventions. You repeat yourself. It suggests generic solutions. Things break because it doesn't understand your codebase.
 
