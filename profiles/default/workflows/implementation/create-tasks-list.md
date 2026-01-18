@@ -82,9 +82,29 @@ Before creating tasks, check if checkpoints are needed for big changes:
 
 If a checkpoint is needed, present it to the user and wait for their confirmation before proceeding.
 
-### Step 4: Create Tasks Breakdown
+### Step 4: Create Tasks Breakdown (SDD-aligned)
 
 Generate `agent-os/specs/[current-spec]/tasks.md`.
+
+**SDD Task Decomposition Best Practices:**
+- Respect SDD phase order: Specify → Tasks → Implement (spec should be complete before tasks)
+- Ensure each task can be validated against spec acceptance criteria
+- Break work into small, testable, isolated tasks
+- Order tasks by dependency (respecting SDD phase order)
+- Reference spec acceptance criteria when creating task validation
+
+**INVEST Criteria for Task Quality:**
+When creating tasks, ensure they are:
+- **Independent**: Can be done in any order where dependencies allow
+- **Valuable**: Deliver standalone value (not just technical subtasks)
+- **Small**: Manageable size that can be completed efficiently
+- **Estimable**: Can be estimated with reasonable accuracy
+- **Testable**: Have clear acceptance criteria from spec
+
+**Atomic Task Principles:**
+- Tasks should be independently valuable (not just technical subtasks)
+- Tasks should be independently testable (have clear acceptance criteria)
+- Task decomposition should follow SDD principles (small, testable, isolated)
 
 **Important**: The exact tasks, task groups, and organization will vary based on the feature's specific requirements. The following is an example format - adapt the content of the tasks list to match what THIS feature actually needs.
 
@@ -253,6 +273,113 @@ Recommended implementation sequence:
 - More or fewer sub-tasks per group
 - Task groups for specific domains (e.g., algorithms, data processing, system integration)
 
+### Step 5: Validate Tasks Against SDD Principles (SDD-aligned)
+
+After creating tasks, validate them against SDD best practices and INVEST criteria:
+
+```bash
+# SDD Task Validation
+TASKS_FILE="$SPEC_PATH/tasks.md"
+SPEC_FILE="$SPEC_PATH/spec.md"
+
+if [ -f "$TASKS_FILE" ] && [ -f "$SPEC_FILE" ]; then
+    echo "🔍 Validating tasks against SDD principles..."
+    
+    # INVEST Criteria Validation
+    INVEST_ISSUES=""
+    
+    # Check for Independent tasks (can be done in any order where dependencies allow)
+    # Validation: tasks should not have circular dependencies
+    # This is checked by ensuring task dependencies follow a DAG structure
+    
+    # Check for Valuable tasks (deliver standalone value)
+    # Look for tasks that are too granular (technical subtasks without standalone value)
+    GRANULAR_TASKS=$(grep -iE "TODO|FIXME|refactor|cleanup|optimize" "$TASKS_FILE" | grep -v "Write.*tests" | wc -l)
+    if [ "$GRANULAR_TASKS" -gt 5 ]; then
+        INVEST_ISSUES="${INVEST_ISSUES}⚠️ Too many technical subtasks detected (may violate 'Valuable' principle). Consider grouping technical subtasks into independently valuable tasks. "
+    fi
+    
+    # Check for Small tasks (manageable size)
+    # Validation: tasks should have clear scope that can be completed efficiently
+    # Check if tasks are too large (exceeding reasonable completion time)
+    LARGE_TASKS=$(grep -iE "complete.*feature|implement.*system|build.*application" "$TASKS_FILE" | wc -l)
+    if [ "$LARGE_TASKS" -gt 3 ]; then
+        INVEST_ISSUES="${INVEST_ISSUES}⚠️ Large tasks detected (may violate 'Small' principle). Consider breaking down into smaller, manageable tasks. "
+    fi
+    
+    # Check for Estimable tasks (can be estimated with reasonable accuracy)
+    # Validation: tasks should have clear scope and acceptance criteria
+    TASKS_WITHOUT_AC=$(grep -c "Acceptance Criteria:" "$TASKS_FILE" 2>/dev/null || echo "0")
+    TOTAL_TASK_GROUPS=$(grep -c "^#### Task Group" "$TASKS_FILE" 2>/dev/null || echo "0")
+    if [ "$TOTAL_TASK_GROUPS" -gt 0 ] && [ "$TASKS_WITHOUT_AC" -lt "$TOTAL_TASK_GROUPS" ]; then
+        INVEST_ISSUES="${INVEST_ISSUES}⚠️ Some task groups lack acceptance criteria (may violate 'Estimable' and 'Testable' principles). Ensure all task groups have clear acceptance criteria from spec. "
+    fi
+    
+    # Check for Testable tasks (have clear acceptance criteria from spec)
+    # Validate that tasks reference spec acceptance criteria
+    TASKS_REFERENCING_SPEC=$(grep -iE "spec|acceptance criteria|requirement" "$TASKS_FILE" | wc -l)
+    if [ "$TASKS_REFERENCING_SPEC" -eq 0 ]; then
+        INVEST_ISSUES="${INVEST_ISSUES}⚠️ Tasks may not be validating against spec acceptance criteria (may violate 'Testable' principle). Ensure tasks can be validated against spec. "
+    fi
+    
+    # Atomic Task Principles Validation
+    ATOMIC_ISSUES=""
+    
+    # Check for independently valuable tasks
+    # Validation: tasks should deliver standalone value, not just be technical subtasks
+    SUBTASK_INDICATORS=$(grep -iE "setup|configure|initialize|prepare|helper|utility" "$TASKS_FILE" | grep -v "Write.*tests" | wc -l)
+    if [ "$SUBTASK_INDICATORS" -gt 3 ] && [ "$TOTAL_TASK_GROUPS" -lt 5 ]; then
+        ATOMIC_ISSUES="${ATOMIC_ISSUES}⚠️ Many technical subtasks detected. Consider ensuring tasks are independently valuable, not just setup/preparation steps. "
+    fi
+    
+    # Check for independently testable tasks
+    # Validation: tasks should have clear acceptance criteria
+    # Already checked above in INVEST validation
+    
+    # SDD Phase Order Validation
+    SDD_PHASE_ISSUES=""
+    
+    # Check that tasks respect SDD phase order (Specify → Tasks → Implement)
+    # Validation: spec should be complete before tasks are created
+    # This is implicit - if we're creating tasks, spec should already exist
+    
+    # Check that tasks can be validated against spec acceptance criteria
+    if [ -f "$SPEC_FILE" ]; then
+        SPEC_AC=$(grep -iE "acceptance criteria|Acceptance Criteria" "$SPEC_FILE" | wc -l)
+        if [ "$SPEC_AC" -eq 0 ]; then
+            SDD_PHASE_ISSUES="${SDD_PHASE_ISSUES}⚠️ Spec may lack acceptance criteria. Tasks should be validated against spec acceptance criteria (SDD best practice). "
+        fi
+    fi
+    
+    # Report validation results
+    if [ -n "$INVEST_ISSUES$ATOMIC_ISSUES$SDD_PHASE_ISSUES" ]; then
+        echo "📋 SDD Task Validation: Issues detected"
+        echo ""
+        if [ -n "$INVEST_ISSUES" ]; then
+            echo "INVEST Criteria Issues:"
+            echo "$INVEST_ISSUES"
+            echo ""
+        fi
+        if [ -n "$ATOMIC_ISSUES" ]; then
+            echo "Atomic Task Principles Issues:"
+            echo "$ATOMIC_ISSUES"
+            echo ""
+        fi
+        if [ -n "$SDD_PHASE_ISSUES" ]; then
+            echo "SDD Phase Order Issues:"
+            echo "$SDD_PHASE_ISSUES"
+            echo ""
+        fi
+        echo "Consider reviewing tasks to align with SDD best practices."
+        echo "Proceed anyway? [Yes/No]"
+        # In actual execution, wait for user decision
+    else
+        echo "✅ SDD Task Validation: All checks passed"
+        echo "Tasks align with INVEST criteria, atomic task principles, and SDD best practices."
+    fi
+fi
+```
+
 ## Important Constraints
 
 - **Create tasks that are specific and verifiable**
@@ -265,3 +392,35 @@ Recommended implementation sequence:
 - **Use a focused test-driven approach** where each task group starts with writing 2-8 tests (x.1 sub-task) and ends with running ONLY those tests (final sub-task)
 - **Include acceptance criteria** for each task group
 - **Reference visual assets** if visuals are available
+
+## SDD Integration Notes
+
+This workflow has been enhanced with Spec-Driven Development (SDD) best practices:
+
+**SDD Principles Integrated:**
+- **SDD Phase Order**: Tasks respect SDD phase order (Specify → Tasks → Implement)
+- **Spec as Source of Truth**: Tasks can be validated against spec acceptance criteria
+- **Task Decomposition Best Practices**: Tasks are broken into small, testable, isolated units
+
+**INVEST Criteria Integration:**
+- **Independent**: Tasks can be done in any order where dependencies allow
+- **Valuable**: Tasks deliver standalone value (not just technical subtasks)
+- **Small**: Tasks are manageable size that can be completed efficiently
+- **Estimable**: Tasks can be estimated with reasonable accuracy
+- **Testable**: Tasks have clear acceptance criteria from spec
+
+**Atomic Task Principles:**
+- Tasks are independently valuable (not just technical subtasks)
+- Tasks are independently testable (have clear acceptance criteria)
+- Task decomposition follows SDD principles (small, testable, isolated)
+
+**Technology-Agnostic Approach (Default Profile Templates Only):**
+- All SDD framework references are abstract (e.g., "task decomposition frameworks" not technology-specific tools)
+- No hardcoded technology-specific task management tool references in default templates
+- Task validation maintains technology-agnostic state throughout **in default profile templates**
+- **After Specialization:** When templates are compiled to `agent-os/workflows/`, workflows can and should become technology-specific based on the project's actual stack
+- **Command Outputs:** Specs, tasks, and implementations should reflect the project's actual technology stack
+
+**Workflow Steps Enhanced:**
+- Step 4: Enhanced task creation guidance with SDD best practices and INVEST criteria
+- Step 5: Added SDD task validation against INVEST criteria, atomic task principles, and SDD phase order

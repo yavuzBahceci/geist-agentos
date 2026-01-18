@@ -59,6 +59,101 @@ if [ -f "$REVIEW_PATH/trade-offs.md" ]; then
 fi
 ```
 
+### Step 2.5: Run SDD Trade-off Detection (SDD-aligned)
+
+After running standard trade-off detection, check for SDD-specific trade-offs:
+
+```bash
+echo "📊 Running SDD trade-off detection..."
+
+SPEC_FILE="$SPEC_PATH/spec.md"
+REQUIREMENTS_FILE="$SPEC_PATH/planning/requirements.md"
+TASKS_FILE="$SPEC_PATH/tasks.md"
+IMPLEMENTATION_PATH="$SPEC_PATH/implementation"
+
+# Initialize SDD trade-off tracking
+SDD_TRADE_OFF_COUNT=0
+SDD_TRADE_OFFS=""
+
+# Check for spec-implementation drift (when implementation exists and diverges from spec)
+if [ -f "$SPEC_FILE" ] && [ -d "$IMPLEMENTATION_PATH" ]; then
+    # Check if implementation exists
+    if find "$IMPLEMENTATION_PATH" -name "*.md" -o -name "*.js" -o -name "*.py" -o -name "*.ts" 2>/dev/null | head -1 | grep -q .; then
+        # Implementation exists - check for drift
+        # This is a simplified check - actual drift detection would compare spec requirements to implementation
+        # For now, we check if spec and implementation align structurally
+        SPEC_AC_COUNT=$(grep -c "Acceptance Criteria:" "$SPEC_FILE" 2>/dev/null || echo "0")
+        TASKS_AC_COUNT=$(grep -c "Acceptance Criteria:" "$TASKS_FILE" 2>/dev/null || echo "0")
+        
+        if [ "$SPEC_AC_COUNT" -gt 0 ] && [ "$TASKS_AC_COUNT" -gt 0 ] && [ "$SPEC_AC_COUNT" -ne "$TASKS_AC_COUNT" ]; then
+            SDD_TRADE_OFF_COUNT=$((SDD_TRADE_OFF_COUNT + 1))
+            SDD_TRADE_OFFS="${SDD_TRADE_OFFS}\nTRADE-OFF-SDD-001: Spec-implementation drift detected. Spec has $SPEC_AC_COUNT acceptance criteria, but tasks have $TASKS_AC_COUNT. Implementation may be diverging from spec (SDD principle: spec as source of truth)."
+        fi
+    fi
+fi
+
+# Check for premature technical decisions in spec phase (violates SDD "What & Why" principle)
+if [ -f "$SPEC_FILE" ] || [ -f "$REQUIREMENTS_FILE" ]; then
+    # Check spec file for premature technical details
+    if [ -f "$SPEC_FILE" ]; then
+        PREMATURE_TECH=$(grep -iE "implementation details|code structure|database schema|api endpoints|class hierarchy|architecture diagram|tech stack|framework|library|npm package|import|require" "$SPEC_FILE" | wc -l)
+        
+        if [ "$PREMATURE_TECH" -gt 5 ]; then
+            SDD_TRADE_OFF_COUNT=$((SDD_TRADE_OFF_COUNT + 1))
+            SDD_TRADE_OFFS="${SDD_TRADE_OFFS}\nTRADE-OFF-SDD-002: Premature technical decisions detected in spec ($PREMATURE_TECH instances). Spec should focus on What & Why, not How (SDD principle). Technical details belong in task creation/implementation phase."
+        fi
+    fi
+    
+    # Check requirements file for premature technical details
+    if [ -f "$REQUIREMENTS_FILE" ]; then
+        PREMATURE_TECH_REQ=$(grep -iE "implementation details|code structure|database schema|api endpoints|class hierarchy|architecture diagram|tech stack|framework|library|npm package|import|require" "$REQUIREMENTS_FILE" | wc -l)
+        
+        if [ "$PREMATURE_TECH_REQ" -gt 5 ]; then
+            SDD_TRADE_OFF_COUNT=$((SDD_TRADE_OFF_COUNT + 1))
+            SDD_TRADE_OFFS="${SDD_TRADE_OFFS}\nTRADE-OFF-SDD-003: Premature technical decisions detected in requirements ($PREMATURE_TECH_REQ instances). Requirements should focus on What & Why, not How (SDD principle)."
+        fi
+    fi
+fi
+
+# Check for over-specification or feature bloat (violates SDD "minimal, intentional scope" principle)
+if [ -f "$SPEC_FILE" ]; then
+    # Check spec file size (over-specification indicator)
+    SPEC_LINE_COUNT=$(wc -l < "$SPEC_FILE" 2>/dev/null || echo "0")
+    SPEC_SECTION_COUNT=$(grep -c "^##" "$SPEC_FILE" 2>/dev/null || echo "0")
+    
+    # Heuristic: If spec has more than 500 lines or more than 15 sections, it might be over-specified
+    if [ "$SPEC_LINE_COUNT" -gt 500 ] || [ "$SPEC_SECTION_COUNT" -gt 15 ]; then
+        SDD_TRADE_OFF_COUNT=$((SDD_TRADE_OFF_COUNT + 1))
+        SDD_TRADE_OFFS="${SDD_TRADE_OFFS}\nTRADE-OFF-SDD-004: Over-specification detected. Spec has $SPEC_LINE_COUNT lines and $SPEC_SECTION_COUNT sections. May violate SDD 'minimal, intentional scope' principle. Consider breaking into smaller, focused specs."
+    fi
+fi
+
+# If SDD trade-offs found, add to trade-offs file
+if [ "$SDD_TRADE_OFF_COUNT" -gt 0 ]; then
+    echo "   Found $SDD_TRADE_OFF_COUNT SDD-specific trade-offs"
+    
+    # Append SDD trade-offs to trade-offs file
+    if [ -f "$REVIEW_PATH/trade-offs.md" ]; then
+        echo "" >> "$REVIEW_PATH/trade-offs.md"
+        echo "## SDD-Specific Trade-offs" >> "$REVIEW_PATH/trade-offs.md"
+        echo -e "$SDD_TRADE_OFFS" >> "$REVIEW_PATH/trade-offs.md"
+    else
+        # Create new trade-offs file with SDD trade-offs
+        cat > "$REVIEW_PATH/trade-offs.md" << EOF
+# Trade-offs Detected
+
+## SDD-Specific Trade-offs
+$(echo -e "$SDD_TRADE_OFFS")
+
+EOF
+    fi
+    
+    NEEDS_TRADE_OFF_REVIEW="true"
+else
+    echo "   No SDD-specific trade-offs found"
+fi
+```
+
 ### Step 3: Run Contradiction Detection
 
 ```bash
@@ -275,3 +370,19 @@ Commands should call this workflow at key decision points:
 - Must log all decisions for future reference
 - Must integrate with basepoints knowledge for context
 - **CRITICAL**: All review results stored in `$SPEC_PATH/implementation/cache/human-review/`
+
+## SDD Integration Notes
+
+This workflow has been enhanced with Spec-Driven Development (SDD) best practices:
+
+**SDD Trade-off Detection:**
+- **Spec-Implementation Drift**: Detects when implementation exists and diverges from spec (violates SDD "spec as source of truth" principle)
+- **Premature Technical Decisions**: Identifies technical details in spec phase (violates SDD "What & Why, not How" principle)
+- **Over-Specification**: Flags excessive scope or feature bloat (violates SDD "minimal, intentional scope" principle)
+
+**Technology-Agnostic Approach (Default Profile Templates Only):**
+- All SDD trade-off detection is structure-based, not technology-specific
+- No hardcoded technology-specific references in default templates
+- Detection maintains technology-agnostic state throughout **in default profile templates**
+- **After Specialization:** When templates are compiled to `agent-os/workflows/`, workflows can and should become technology-specific based on the project's actual stack
+- **Command Outputs:** Specs, tasks, and implementations should reflect the project's actual technology stack

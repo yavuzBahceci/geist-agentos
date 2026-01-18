@@ -59,21 +59,39 @@ Based on the initial idea, generate 4-8 targeted, NUMBERED questions that explor
 
 **CRITICAL: Always include the visual asset request AND reusability question at the END of your questions.**
 
-**Question generation guidelines:**
+**Question generation guidelines (SDD-aligned):**
 - Start each question with a number
-- Propose sensible assumptions based on best practices
+- Propose sensible assumptions based on best practices and SDD principles
 - Frame questions as "I'm assuming X, is that correct?"
 - Make it easy for users to confirm or provide alternatives
 - Include specific suggestions they can say yes/no to
 - Always end with an open question about exclusions
 
-**Required output format:**
+**SDD-informed question patterns:**
+- Ensure questions capture clear user stories in format: "As a [user], I want [action], so that [benefit]"
+- Validate that acceptance criteria will be explicitly documented (not implied)
+- Check for explicit scope boundaries (what's in-scope vs out-of-scope)
+- Avoid questions that lead to premature technical details (SDD: focus on What & Why, not How in spec phase)
+- Encourage minimal, intentionally scoped specs (prevent feature bloat)
+- Help avoid SDD anti-patterns:
+  - Specification theater: Ask questions that ensure specs will be actionable and referenced
+  - Premature comprehensiveness: Ask questions that encourage incremental, focused specs
+  - Over-engineering: Avoid questions that push toward excessive technical detail too early
+
+**Required output format (SDD-aligned):**
 ```
 Based on your idea for [spec name], I have some clarifying questions:
 
 1. I assume [specific assumption]. Is that correct, or [alternative]?
 2. I'm thinking [specific approach]. Should we [alternative]?
 3. [Continue with numbered questions...]
+
+**SDD Requirements Check:**
+To ensure we create a well-structured specification (following spec-driven development best practices), I want to confirm:
+- Will we capture user stories in the format "As a [user], I want [action], so that [benefit]"?
+- Will we define clear acceptance criteria for each requirement?
+- Should we explicitly define what's in-scope vs out-of-scope for this feature?
+
 [Last numbered question about exclusions]
 
 **Existing Code Reuse:**
@@ -136,7 +154,7 @@ ls -la [spec-path]/planning/visuals/ 2>/dev/null | grep -E '\.(png|jpg|jpeg|gif|
    - Make note of these paths/names for spec-writer to reference
    - DO NOT explore them yourself (to save time), but DO document their names for future reference by the spec-writer.
 
-### Step 6: Check for Checkpoints Before Big Changes
+### Step 6: Check for Checkpoints Before Big Changes (SDD-aligned)
 
 After processing answers, check if any big changes or abstraction layer transitions are detected:
 
@@ -146,6 +164,52 @@ After processing answers, check if any big changes or abstraction layer transiti
 ```
 
 If a checkpoint is needed, present it to the user and wait for their confirmation before proceeding.
+
+**SDD Checkpoint: Spec Completeness Before Task Decomposition (Conditional)**
+
+As part of SDD best practices, validate spec completeness before proceeding to task decomposition:
+
+```bash
+# Conditionally check if spec completeness validation is needed
+# Only trigger if it would add value and doesn't create unnecessary friction
+SPEC_COMPLETE_CHECK_NEEDED="false"
+
+# Check if spec has clear requirements, acceptance criteria, and scope boundaries
+if [ -f "$SPEC_PATH/planning/requirements.md" ]; then
+    # Check for user stories format
+    HAS_USER_STORIES=$(grep -i "as a.*i want.*so that" "$SPEC_PATH/planning/requirements.md" | wc -l)
+    
+    # Check for acceptance criteria
+    HAS_ACCEPTANCE_CRITERIA=$(grep -i "acceptance criteria\|acceptance criterion" "$SPEC_PATH/planning/requirements.md" | wc -l)
+    
+    # Check for scope boundaries
+    HAS_SCOPE_BOUNDARIES=$(grep -i "in scope\|out of scope\|scope boundary" "$SPEC_PATH/planning/requirements.md" | wc -l)
+    
+    # Only trigger checkpoint if key SDD elements are missing AND it would be useful
+    if [ "$HAS_USER_STORIES" -eq 0 ] || [ "$HAS_ACCEPTANCE_CRITERIA" -eq 0 ] || [ "$HAS_SCOPE_BOUNDARIES" -eq 0 ]; then
+        SPEC_COMPLETE_CHECK_NEEDED="true"
+    fi
+fi
+
+if [ "$SPEC_COMPLETE_CHECK_NEEDED" = "true" ]; then
+    echo "🔍 SDD Checkpoint: Spec Completeness Validation"
+    echo ""
+    echo "Before proceeding to task decomposition (SDD phase order: Specify → Tasks),"
+    echo "let's ensure the specification is complete with:"
+    echo "  - Clear user stories"
+    echo "  - Explicit acceptance criteria"
+    echo "  - Defined scope boundaries (in-scope vs out-of-scope)"
+    echo ""
+    echo "Should we review and enhance the requirements before creating tasks?"
+    echo "This ensures the 'Specify' phase is complete before the 'Tasks' phase (SDD best practice)."
+    echo ""
+    echo "Reply: [Yes/No/Proceed anyway]"
+    
+    # Wait for user confirmation (implementation will handle this in actual execution)
+fi
+```
+
+**Note:** This checkpoint is conditional and only triggers when it would add meaningful value. It follows SDD principle: "Specify" phase should be complete before "Tasks" phase, ensuring spec is the source of truth.
 
 ### Step 7: Generate Follow-up Questions (if needed)
 
@@ -291,3 +355,35 @@ Ready for specification creation.
 - Document all visual findings including fidelity level
 - Document paths to similar features for spec-writer to reference
 - OUTPUT questions and STOP to wait for orchestrator to relay responses
+
+## SDD Integration Notes
+
+This workflow has been enhanced with Spec-Driven Development (SDD) best practices:
+
+**SDD Principles Integrated:**
+- **Specification as Source of Truth**: Questions ensure specs are actionable and will be referenced
+- **Minimal, Clear Specs**: Questions encourage intentional scoping and avoid feature bloat
+- **SDD Phase Order**: Conditional checkpoint validates "Specify" phase is complete before "Tasks" phase
+
+**SDD-Aware Question Generation:**
+- Questions ensure user stories are captured in standard format
+- Questions validate acceptance criteria will be explicit
+- Questions check for explicit scope boundaries
+- Questions avoid leading to premature technical details (What & Why, not How in spec phase)
+
+**SDD Anti-Pattern Prevention:**
+- Questions help avoid specification theater (specs that are written but never referenced)
+- Questions prevent premature comprehensiveness (trying to spec everything upfront)
+- Questions discourage over-engineering (excessive technical detail too early)
+
+**Technology-Agnostic Approach (Default Profile Templates Only):**
+- All SDD framework references are abstract (e.g., "task decomposition frameworks" not technology-specific tools)
+- No hardcoded technology-specific SDD tool references in default templates
+- Questions maintain technology-agnostic state throughout **in default profile templates**
+- **After Specialization:** When templates are compiled to `agent-os/workflows/`, workflows can and should become technology-specific based on the project's actual stack
+- **Command Outputs:** Specs, tasks, and implementations should reflect the project's actual technology stack
+
+**Conditional SDD Checkpoints:**
+- Spec completeness checkpoint only triggers when it would add value
+- Checkpoints follow existing human-review workflow patterns
+- Checkpoints don't create unnecessary friction
