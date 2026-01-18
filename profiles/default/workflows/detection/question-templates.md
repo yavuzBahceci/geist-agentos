@@ -182,7 +182,7 @@ After questions are answered, update the project profile:
 ```bash
 # Update project profile with user answers
 update_profile_with_answers() {
-    PROFILE_FILE="agent-os/config/project-profile.yml"
+    PROFILE_FILE="geist/config/project-profile.yml"
     
     if [ -f "$PROFILE_FILE" ]; then
         # Update user_specified section

@@ -24,25 +24,25 @@ Display a comprehensive summary of the deploy-agents command results:
 
 | Category | Location | Description |
 |----------|----------|-------------|
-| Commands | `agent-os/commands/` | shape-spec, write-spec, create-tasks, implement-tasks, orchestrate-tasks |
-| Standards | `agent-os/standards/` | Validation commands, coding standards |
-| Workflows | `agent-os/workflows/` | Project-specific workflows |
-| Agents | `agent-os/agents/` | Agent configurations |
+| Commands | `geist/commands/` | shape-spec, write-spec, create-tasks, implement-tasks, orchestrate-tasks |
+| Standards | `geist/standards/` | Validation commands, coding standards |
+| Workflows | `geist/workflows/` | Project-specific workflows |
+| Agents | `geist/agents/` | Agent configurations |
 
 ### Reports Generated
 
-Reports are available in `agent-os/output/deploy-agents/`:
+Reports are available in `geist/output/deploy-agents/`:
 - Complexity assessment
 - Specialization report
 - Deployment summary
 
 ## Next Steps
 
-Now that your Agent OS is specialized, the recommended next step is to validate the deployment and clean up any remaining issues.
+Now that your Geist is specialized, the recommended next step is to validate the deployment and clean up any remaining issues.
 
 ### Recommended Command
 
-Run the **cleanup-agent-os** command to:
+Run the **cleanup-geist** command to:
 - Verify all placeholders are properly replaced
 - Check for broken file references
 - Ensure knowledge completeness
@@ -57,21 +57,21 @@ Display the following completion message:
   DEPLOY-AGENTS COMPLETE
 ═══════════════════════════════════════════════════════
 
-🎉 Your Agent OS commands have been specialized!
+🎉 Your Geist commands have been specialized!
 
 **Files Specialized:**
-├── agent-os/commands/      (project-specific commands)
+├── geist/commands/      (project-specific commands)
 │   ├── shape-spec/
 │   ├── write-spec/
 │   ├── create-tasks/
 │   ├── implement-tasks/
 │   └── orchestrate-tasks/
-├── agent-os/standards/     (project-specific standards)
-├── agent-os/workflows/     (project-specific workflows)
-└── agent-os/agents/        (project-specific agents)
+├── geist/standards/     (project-specific standards)
+├── geist/workflows/     (project-specific workflows)
+└── geist/agents/        (project-specific agents)
 
 **Reports Generated:**
-└── agent-os/output/deploy-agents/
+└── geist/output/deploy-agents/
     ├── complexity-assessment.json
     ├── specialization-report.md
     └── deployment-summary.md
@@ -80,7 +80,7 @@ Display the following completion message:
   NEXT STEP
 ═══════════════════════════════════════════════════════
 
-👉 Run `/cleanup-agent-os` to validate your deployment.
+👉 Run `/cleanup-geist` to validate your deployment.
 
 This will:
 • Verify all placeholders are properly replaced
@@ -88,7 +88,7 @@ This will:
 • Ensure knowledge completeness
 • Generate a cleanup report
 
-After cleanup, your Agent OS is ready to use!
+After cleanup, your Geist is ready to use!
 ```
 
 {{UNLESS standards_as_claude_code_skills}}

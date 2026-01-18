@@ -6,7 +6,7 @@ Now that shape-spec and write-spec commands are specialized, proceed with specia
 2. **Inject Project-Specific Knowledge**: Inject patterns, checkpoints, strategies, and workflows from merged knowledge
 3. **Replace Abstract Placeholders**: Replace {{workflows/...}}, {{standards/...}} with project-specific content
 4. **Adapt Checkpoints**: Adapt task checkpoints based on project structure complexity
-5. **Write Specialized Commands**: Write specialized commands to agent-os/commands/ (replace abstract versions)
+5. **Write Specialized Commands**: Write specialized commands to geist/commands/ (replace abstract versions)
 
 ## Workflow
 
@@ -16,22 +16,22 @@ Load merged knowledge from previous phases:
 
 ```bash
 # Load merged knowledge from cache
-if [ -f "agent-os/output/deploy-agents/knowledge/merged-knowledge.json" ]; then
-    MERGED_KNOWLEDGE=$(cat agent-os/output/deploy-agents/knowledge/merged-knowledge.json)
+if [ -f "geist/output/deploy-agents/knowledge/merged-knowledge.json" ]; then
+    MERGED_KNOWLEDGE=$(cat geist/output/deploy-agents/knowledge/merged-knowledge.json)
     echo "✅ Loaded merged knowledge"
 fi
 
 # Load command-specific knowledge
-if [ -f "agent-os/output/deploy-agents/knowledge/create-tasks-knowledge.json" ]; then
-    CREATE_TASKS_KNOWLEDGE=$(cat agent-os/output/deploy-agents/knowledge/create-tasks-knowledge.json)
+if [ -f "geist/output/deploy-agents/knowledge/create-tasks-knowledge.json" ]; then
+    CREATE_TASKS_KNOWLEDGE=$(cat geist/output/deploy-agents/knowledge/create-tasks-knowledge.json)
 fi
 
-if [ -f "agent-os/output/deploy-agents/knowledge/implement-tasks-knowledge.json" ]; then
-    IMPLEMENT_TASKS_KNOWLEDGE=$(cat agent-os/output/deploy-agents/knowledge/implement-tasks-knowledge.json)
+if [ -f "geist/output/deploy-agents/knowledge/implement-tasks-knowledge.json" ]; then
+    IMPLEMENT_TASKS_KNOWLEDGE=$(cat geist/output/deploy-agents/knowledge/implement-tasks-knowledge.json)
 fi
 
-if [ -f "agent-os/output/deploy-agents/knowledge/orchestrate-tasks-knowledge.json" ]; then
-    ORCHESTRATE_TASKS_KNOWLEDGE=$(cat agent-os/output/deploy-agents/knowledge/orchestrate-tasks-knowledge.json)
+if [ -f "geist/output/deploy-agents/knowledge/orchestrate-tasks-knowledge.json" ]; then
+    ORCHESTRATE_TASKS_KNOWLEDGE=$(cat geist/output/deploy-agents/knowledge/orchestrate-tasks-knowledge.json)
 fi
 ```
 
@@ -330,19 +330,19 @@ Specialize orchestrate-tasks command:
   - Adapt conditional compilation tags ({{IF use_claude_code_subagents}}, {{UNLESS standards_as_claude_code_skills}}) based on project setup
   - Include project-specific examples and patterns in orchestration
 
-### Step 8: Write Specialized Commands to agent-os/commands/
+### Step 8: Write Specialized Commands to geist/commands/
 
-Write specialized commands to agent-os/commands/, replacing abstract versions:
+Write specialized commands to geist/commands/, replacing abstract versions:
 
 ```bash
-# Ensure agent-os/commands/ directories exist
-mkdir -p agent-os/commands/create-tasks/single-agent
-mkdir -p agent-os/commands/implement-tasks/single-agent
-mkdir -p agent-os/commands/orchestrate-tasks
+# Ensure geist/commands/ directories exist
+mkdir -p geist/commands/create-tasks/single-agent
+mkdir -p geist/commands/implement-tasks/single-agent
+mkdir -p geist/commands/orchestrate-tasks
 
 # Write specialized create-tasks command
-echo "$SPECIALIZED_CREATE_TASKS" > agent-os/commands/create-tasks/create-tasks.md
-echo "$SPECIALIZED_CREATE_TASKS" > agent-os/commands/create-tasks/single-agent/create-tasks.md
+echo "$SPECIALIZED_CREATE_TASKS" > geist/commands/create-tasks/create-tasks.md
+echo "$SPECIALIZED_CREATE_TASKS" > geist/commands/create-tasks/single-agent/create-tasks.md
 
 # Write specialized create-tasks phase files
 for phase_file in profiles/default/commands/create-tasks/single-agent/*.md; do
@@ -353,17 +353,17 @@ for phase_file in profiles/default/commands/create-tasks/single-agent/*.md; do
         PHASE_CONTENT=$(extract_phase_from_specialized "$SPECIALIZED_CREATE_TASKS_PHASES" "$PHASE_NAME")
         
         # Write specialized phase file
-        echo "$PHASE_CONTENT" > "agent-os/commands/create-tasks/single-agent/$PHASE_NAME"
+        echo "$PHASE_CONTENT" > "geist/commands/create-tasks/single-agent/$PHASE_NAME"
     fi
 done
 
 # Write specialized create-tasks workflow (if workflows directory exists)
-mkdir -p agent-os/workflows/implementation
-echo "$SPECIALIZED_CREATE_TASKS_WORKFLOW" > agent-os/workflows/implementation/create-tasks-list.md
+mkdir -p geist/workflows/implementation
+echo "$SPECIALIZED_CREATE_TASKS_WORKFLOW" > geist/workflows/implementation/create-tasks-list.md
 
 # Write specialized implement-tasks command
-echo "$SPECIALIZED_IMPLEMENT_TASKS" > agent-os/commands/implement-tasks/implement-tasks.md
-echo "$SPECIALIZED_IMPLEMENT_TASKS" > agent-os/commands/implement-tasks/single-agent/implement-tasks.md
+echo "$SPECIALIZED_IMPLEMENT_TASKS" > geist/commands/implement-tasks/implement-tasks.md
+echo "$SPECIALIZED_IMPLEMENT_TASKS" > geist/commands/implement-tasks/single-agent/implement-tasks.md
 
 # Write specialized implement-tasks phase files
 for phase_file in profiles/default/commands/implement-tasks/single-agent/*.md; do
@@ -374,29 +374,29 @@ for phase_file in profiles/default/commands/implement-tasks/single-agent/*.md; d
         PHASE_CONTENT=$(extract_phase_from_specialized "$SPECIALIZED_IMPLEMENT_TASKS_PHASES" "$PHASE_NAME")
         
         # Write specialized phase file
-        echo "$PHASE_CONTENT" > "agent-os/commands/implement-tasks/single-agent/$PHASE_NAME"
+        echo "$PHASE_CONTENT" > "geist/commands/implement-tasks/single-agent/$PHASE_NAME"
     fi
 done
 
 # Write specialized implement-tasks workflow (if workflows directory exists)
-echo "$SPECIALIZED_IMPLEMENT_TASKS_WORKFLOW" > agent-os/workflows/implementation/implement-tasks.md
+echo "$SPECIALIZED_IMPLEMENT_TASKS_WORKFLOW" > geist/workflows/implementation/implement-tasks.md
 
 # Write specialized orchestrate-tasks command
-echo "$SPECIALIZED_ORCHESTRATE_TASKS" > agent-os/commands/orchestrate-tasks/orchestrate-tasks.md
+echo "$SPECIALIZED_ORCHESTRATE_TASKS" > geist/commands/orchestrate-tasks/orchestrate-tasks.md
 
-echo "✅ Specialized create-tasks, implement-tasks, and orchestrate-tasks commands written to agent-os/commands/"
+echo "✅ Specialized create-tasks, implement-tasks, and orchestrate-tasks commands written to geist/commands/"
 ```
 
 Write specialized commands:
-- **create-tasks.md**: Write specialized create-tasks command to `agent-os/commands/create-tasks/create-tasks.md` (replace abstract version)
-- **single-agent/create-tasks.md**: Write specialized single-agent version to `agent-os/commands/create-tasks/single-agent/create-tasks.md`
-- **create-tasks phase files**: Write specialized phase files to `agent-os/commands/create-tasks/single-agent/`
-- **create-tasks workflow**: Write specialized workflow to `agent-os/workflows/implementation/create-tasks-list.md`
-- **implement-tasks.md**: Write specialized implement-tasks command to `agent-os/commands/implement-tasks/implement-tasks.md` (replace abstract version)
-- **single-agent/implement-tasks.md**: Write specialized single-agent version to `agent-os/commands/implement-tasks/single-agent/implement-tasks.md`
-- **implement-tasks phase files**: Write specialized phase files to `agent-os/commands/implement-tasks/single-agent/`
-- **implement-tasks workflow**: Write specialized workflow to `agent-os/workflows/implementation/implement-tasks.md`
-- **orchestrate-tasks.md**: Write specialized orchestrate-tasks command to `agent-os/commands/orchestrate-tasks/orchestrate-tasks.md` (replace abstract version)
+- **create-tasks.md**: Write specialized create-tasks command to `geist/commands/create-tasks/create-tasks.md` (replace abstract version)
+- **single-agent/create-tasks.md**: Write specialized single-agent version to `geist/commands/create-tasks/single-agent/create-tasks.md`
+- **create-tasks phase files**: Write specialized phase files to `geist/commands/create-tasks/single-agent/`
+- **create-tasks workflow**: Write specialized workflow to `geist/workflows/implementation/create-tasks-list.md`
+- **implement-tasks.md**: Write specialized implement-tasks command to `geist/commands/implement-tasks/implement-tasks.md` (replace abstract version)
+- **single-agent/implement-tasks.md**: Write specialized single-agent version to `geist/commands/implement-tasks/single-agent/implement-tasks.md`
+- **implement-tasks phase files**: Write specialized phase files to `geist/commands/implement-tasks/single-agent/`
+- **implement-tasks workflow**: Write specialized workflow to `geist/workflows/implementation/implement-tasks.md`
+- **orchestrate-tasks.md**: Write specialized orchestrate-tasks command to `geist/commands/orchestrate-tasks/orchestrate-tasks.md` (replace abstract version)
 
 Ensure specialized commands:
 - Are ready to use immediately (no further processing needed)
@@ -416,7 +416,7 @@ Once create-tasks, implement-tasks, and orchestrate-tasks commands are specializ
 - implement-tasks command: Specialized with project-specific implementation patterns and strategies
 - orchestrate-tasks command: Specialized with project-specific orchestration patterns and workflows
 - Abstract placeholders: Replaced with project-specific content
-- Commands written to: agent-os/commands/create-tasks/, agent-os/commands/implement-tasks/, agent-os/commands/orchestrate-tasks/
+- Commands written to: geist/commands/create-tasks/, geist/commands/implement-tasks/, geist/commands/orchestrate-tasks/
 
 Specialized commands are ready to use immediately.
 
@@ -444,14 +444,14 @@ specialize_basepoints_extraction_workflows() {
     local merged_knowledge="$2"
     
     # Load project-specific extraction patterns from cache
-    if [ -f "agent-os/output/deploy-agents/knowledge/basepoint-file-pattern.txt" ]; then
-        BASEPOINT_FILE_PATTERN=$(cat agent-os/output/deploy-agents/knowledge/basepoint-file-pattern.txt)
+    if [ -f "geist/output/deploy-agents/knowledge/basepoint-file-pattern.txt" ]; then
+        BASEPOINT_FILE_PATTERN=$(cat geist/output/deploy-agents/knowledge/basepoint-file-pattern.txt)
     else
         BASEPOINT_FILE_PATTERN="agent-base-*.md"
     fi
     
     # Replace {{BASEPOINTS_PATH}} with actual path
-    content=$(echo "$content" | sed "s|{{BASEPOINTS_PATH}}|agent-os/basepoints|g")
+    content=$(echo "$content" | sed "s|{{BASEPOINTS_PATH}}|geist/basepoints|g")
     
     # Replace {{BASEPOINT_FILE_PATTERN}} with project-specific pattern
     content=$(echo "$content" | sed "s|{{BASEPOINT_FILE_PATTERN}}|$BASEPOINT_FILE_PATTERN|g")
@@ -531,42 +531,42 @@ Validate that all specialized commands correctly reference and use basepoints kn
 
 ```bash
 # Validate shape-spec command
-if grep -q "{{workflows/basepoints/extract-basepoints-knowledge-automatic}}" "agent-os/commands/shape-spec/single-agent/2-shape-spec.md" 2>/dev/null; then
+if grep -q "{{workflows/basepoints/extract-basepoints-knowledge-automatic}}" "geist/commands/shape-spec/single-agent/2-shape-spec.md" 2>/dev/null; then
     echo "❌ shape-spec still contains placeholder for basepoints extraction"
     exit 1
 fi
-if ! grep -q "extract-basepoints-knowledge\|basepoints.*extract" "agent-os/commands/shape-spec/single-agent/2-shape-spec.md" 2>/dev/null; then
+if ! grep -q "extract-basepoints-knowledge\|basepoints.*extract" "geist/commands/shape-spec/single-agent/2-shape-spec.md" 2>/dev/null; then
     echo "⚠️  Warning: shape-spec may not reference basepoints knowledge extraction"
 fi
 
 # Validate write-spec command
-if grep -q "{{workflows/basepoints/extract-basepoints-knowledge-automatic}}" "agent-os/commands/write-spec/single-agent/write-spec.md" 2>/dev/null; then
+if grep -q "{{workflows/basepoints/extract-basepoints-knowledge-automatic}}" "geist/commands/write-spec/single-agent/write-spec.md" 2>/dev/null; then
     echo "❌ write-spec still contains placeholder for basepoints extraction"
     exit 1
 fi
 
 # Validate create-tasks command
-if grep -q "{{workflows/basepoints/extract-basepoints-knowledge-automatic}}" "agent-os/commands/create-tasks/single-agent/2-create-tasks-list.md" 2>/dev/null; then
+if grep -q "{{workflows/basepoints/extract-basepoints-knowledge-automatic}}" "geist/commands/create-tasks/single-agent/2-create-tasks-list.md" 2>/dev/null; then
     echo "❌ create-tasks still contains placeholder for basepoints extraction"
     exit 1
 fi
 
 # Validate implement-tasks command
-if grep -q "{{workflows/basepoints/extract-basepoints-knowledge-automatic}}" "agent-os/commands/implement-tasks/single-agent/2-implement-tasks.md" 2>/dev/null; then
+if grep -q "{{workflows/basepoints/extract-basepoints-knowledge-automatic}}" "geist/commands/implement-tasks/single-agent/2-implement-tasks.md" 2>/dev/null; then
     echo "❌ implement-tasks still contains placeholder for basepoints extraction"
     exit 1
 fi
 
 # Validate workflows reference specialized basepoints extraction
-if [ -f "agent-os/workflows/implementation/create-tasks-list.md" ]; then
-    if grep -q "{{BASEPOINTS_PATH}}\|{{BASEPOINT_FILE_PATTERN}}" "agent-os/workflows/implementation/create-tasks-list.md"; then
+if [ -f "geist/workflows/implementation/create-tasks-list.md" ]; then
+    if grep -q "{{BASEPOINTS_PATH}}\|{{BASEPOINT_FILE_PATTERN}}" "geist/workflows/implementation/create-tasks-list.md"; then
         echo "❌ create-tasks-list workflow still contains placeholders"
         exit 1
     fi
 fi
 
-if [ -f "agent-os/workflows/implementation/implement-tasks.md" ]; then
-    if grep -q "{{BASEPOINTS_PATH}}\|{{BASEPOINT_FILE_PATTERN}}" "agent-os/workflows/implementation/implement-tasks.md"; then
+if [ -f "geist/workflows/implementation/implement-tasks.md" ]; then
+    if grep -q "{{BASEPOINTS_PATH}}\|{{BASEPOINT_FILE_PATTERN}}" "geist/workflows/implementation/implement-tasks.md"; then
         echo "❌ implement-tasks workflow still contains placeholders"
         exit 1
     fi
@@ -584,6 +584,6 @@ echo "✅ All specialized commands correctly use basepoints knowledge extraction
 - **Must specialize deep reading workflows**: Replace code file patterns, module path detection, and pattern extraction placeholders with project-specific patterns
 - **Must validate specialized commands**: Verify all specialized commands correctly reference and use basepoints knowledge extraction (no placeholders remain)
 - Must adapt checkpoints based on project structure complexity (from merged knowledge)
-- Must write specialized commands to agent-os/commands/ (replace abstract versions)
+- Must write specialized commands to geist/commands/ (replace abstract versions)
 - Specialized commands must be ready to use immediately (no further processing needed)
 - Must preserve command structure and phase organization while injecting project-specific knowledge

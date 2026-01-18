@@ -41,7 +41,7 @@ This will:
 - Research best practices for detected libraries
 - Gather architecture patterns for your tech stack
 - Check for security vulnerabilities and updates
-- Store findings in `agent-os/config/enriched-knowledge/`
+- Store findings in `geist/config/enriched-knowledge/`
 
 ### 0.3: Present Findings and Confirm
 
@@ -63,7 +63,7 @@ Questions asked (maximum 2-3):
 1. **Compliance requirements** - GDPR, HIPAA, SOC 2, etc. (can't detect from code)
 2. **Human review preference** - How much AI oversight do you want?
 
-The profile is saved to `agent-os/config/project-profile.yml` for use by subsequent commands.
+The profile is saved to `geist/config/project-profile.yml` for use by subsequent commands.
 
 ---
 
@@ -81,8 +81,8 @@ Once you've completed setup and information gathering, output the following mess
 ```
 I have gathered product information from all available sources.
 
-📊 Project Profile: Saved to agent-os/config/project-profile.yml
-📚 Enriched Knowledge: Saved to agent-os/config/enriched-knowledge/
+📊 Project Profile: Saved to geist/config/project-profile.yml
+📚 Enriched Knowledge: Saved to geist/config/enriched-knowledge/
 
 NEXT STEP 👉 Run the command, `2-analyze-codebase.md`
 ```

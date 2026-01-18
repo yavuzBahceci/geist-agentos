@@ -8,14 +8,14 @@ Create the inheritance folder for user-provided documents:
 
 ```bash
 # Create inheritance folder
-mkdir -p agent-os/product/inheritance
+mkdir -p geist/product/inheritance
 
 # Check if inheritance folder already exists
-if [ -d "agent-os/product/inheritance" ]; then
-    if [ "$(ls -A agent-os/product/inheritance 2>/dev/null)" ]; then
+if [ -d "geist/product/inheritance" ]; then
+    if [ "$(ls -A geist/product/inheritance 2>/dev/null)" ]; then
         echo "Inheritance folder already contains files. Using existing files or add new ones?"
         # List existing files in inheritance folder
-        ls -la agent-os/product/inheritance/
+        ls -la geist/product/inheritance/
     else
         echo "Inheritance folder created. Please place any product-related documents here."
     fi
@@ -28,10 +28,10 @@ Check if product folder already exists and handle accordingly:
 
 ```bash
 # Check if product folder already exists
-if [ -d "agent-os/product" ]; then
+if [ -d "geist/product" ]; then
     echo "Product documentation already exists. Review existing files or start fresh?"
     # List existing product files
-    ls -la agent-os/product/
+    ls -la geist/product/
 fi
 ```
 
@@ -41,7 +41,7 @@ Collect comprehensive product information from the following sources:
 
 ### A. User Input - Interactive User Prompts
 
-Prompt user interactively for product information following the same patterns as plan-product (reference: `agent-os/commands/plan-product/1-product-concept.md`):
+Prompt user interactively for product information following the same patterns as plan-product (reference: `geist/commands/plan-product/1-product-concept.md`):
 
 1. **Initial Information Gathering:**
    - Start with product name and core concept (if not already known from codebase)
@@ -72,14 +72,14 @@ Please provide the following to create your product plan:
 
 ### B. Inheritance Folder Document Processing
 
-Read and process files from `agent-os/product/inheritance/`:
+Read and process files from `geist/product/inheritance/`:
 
 ```bash
 # Check for files in inheritance folder
-if [ -d "agent-os/product/inheritance" ] && [ "$(ls -A agent-os/product/inheritance 2>/dev/null)" ]; then
+if [ -d "geist/product/inheritance" ] && [ "$(ls -A geist/product/inheritance 2>/dev/null)" ]; then
     echo "Processing files from inheritance folder..."
     # List all files
-    find agent-os/product/inheritance -type f | while read file; do
+    find geist/product/inheritance -type f | while read file; do
         echo "Processing: $file"
         # Extract content based on file type
     done
@@ -233,7 +233,7 @@ After gathering information from all sources, merge everything into a unified pr
 
 1. **Collect Information from All Sources:**
    - User input (interactive prompts)
-   - Inheritance folder documents (from `agent-os/product/inheritance/`)
+   - Inheritance folder documents (from `geist/product/inheritance/`)
    - Scraped web content (from links provided)
    - Command outputs (from @command syntax)
    - Web search results (if user requested web search)

@@ -16,19 +16,19 @@ Load knowledge and complexity assessment:
 
 ```bash
 # Load merged knowledge
-if [ -f "agent-os/output/deploy-agents/knowledge/merged-knowledge.json" ]; then
-    MERGED_KNOWLEDGE=$(cat agent-os/output/deploy-agents/knowledge/merged-knowledge.json)
+if [ -f "geist/output/deploy-agents/knowledge/merged-knowledge.json" ]; then
+    MERGED_KNOWLEDGE=$(cat geist/output/deploy-agents/knowledge/merged-knowledge.json)
     echo "✅ Loaded merged knowledge"
 fi
 
 # Load basepoints knowledge
-if [ -f "agent-os/output/deploy-agents/knowledge/basepoints-knowledge.json" ]; then
-    BASEPOINTS_KNOWLEDGE=$(cat agent-os/output/deploy-agents/knowledge/basepoints-knowledge.json)
+if [ -f "geist/output/deploy-agents/knowledge/basepoints-knowledge.json" ]; then
+    BASEPOINTS_KNOWLEDGE=$(cat geist/output/deploy-agents/knowledge/basepoints-knowledge.json)
 fi
 
 # Load complexity assessment
-if [ -f "agent-os/output/deploy-agents/reports/complexity-assessment.json" ]; then
-    COMPLEXITY=$(cat agent-os/output/deploy-agents/reports/complexity-assessment.json)
+if [ -f "geist/output/deploy-agents/reports/complexity-assessment.json" ]; then
+    COMPLEXITY=$(cat geist/output/deploy-agents/reports/complexity-assessment.json)
     PROJECT_NATURE=$(echo "$COMPLEXITY" | grep -o '"nature": *"[^"]*"' | cut -d'"' -f4)
 else
     PROJECT_NATURE="moderate"
@@ -43,7 +43,7 @@ Determine which workflows are needed for this project:
 
 ```bash
 # List existing workflows
-EXISTING_WORKFLOWS=$(find agent-os/workflows -name "*.md" -type f 2>/dev/null)
+EXISTING_WORKFLOWS=$(find geist/workflows -name "*.md" -type f 2>/dev/null)
 
 # Core workflow categories
 WORKFLOW_CATEGORIES=(
@@ -58,7 +58,7 @@ WORKFLOW_CATEGORIES=(
 WORKFLOWS_EVALUATION=""
 for workflow_file in $EXISTING_WORKFLOWS; do
     WORKFLOW_NAME=$(basename "$workflow_file" .md)
-    WORKFLOW_DIR=$(dirname "$workflow_file" | sed 's|agent-os/workflows/||')
+    WORKFLOW_DIR=$(dirname "$workflow_file" | sed 's|geist/workflows/||')
     
     # Evaluate based on complexity and category
     case "$PROJECT_NATURE" in
@@ -130,7 +130,7 @@ WORKFLOW_TIERS[complex]="specification implementation basepoints planning detect
 ACTIVE_CATEGORIES="${WORKFLOW_TIERS[$PROJECT_NATURE]}"
 
 # Create workflow configuration
-cat > "agent-os/workflows/workflow-config.yml" << EOF
+cat > "geist/workflows/workflow-config.yml" << EOF
 # Workflow Configuration
 # Auto-generated based on project complexity: $PROJECT_NATURE
 
@@ -177,14 +177,14 @@ layer_validations:
     - validate-data-patterns.md
 EOF
 
-echo "✅ Created workflow configuration: agent-os/workflows/workflow-config.yml"
+echo "✅ Created workflow configuration: geist/workflows/workflow-config.yml"
 
 # For simple projects, create a simplified workflow manifest
 if [ "$PROJECT_NATURE" = "simple" ]; then
     echo "📋 Simplifying workflows for simple project..."
     
     # Create a simplified-workflows.md guide
-    cat > "agent-os/workflows/simplified-workflows.md" << EOF
+    cat > "geist/workflows/simplified-workflows.md" << EOF
 # Simplified Workflows for Simple Project
 
 This project is classified as **simple**, so workflows have been streamlined.
@@ -226,7 +226,7 @@ If your project grows in complexity, re-run:
 This will reassess complexity and enable appropriate workflows.
 EOF
     
-    echo "✅ Created simplified workflow guide: agent-os/workflows/simplified-workflows.md"
+    echo "✅ Created simplified workflow guide: geist/workflows/simplified-workflows.md"
 fi
 
 # For complex projects, ensure all layer validations are enabled
@@ -234,8 +234,8 @@ if [ "$PROJECT_NATURE" = "complex" ]; then
     echo "📋 Enabling comprehensive workflows for complex project..."
     
     # Ensure layer validation workflows are properly configured
-    if [ -d "agent-os/agents/specialists" ]; then
-        cat > "agent-os/workflows/layer-validation-config.md" << EOF
+    if [ -d "geist/agents/specialists" ]; then
+        cat > "geist/workflows/layer-validation-config.md" << EOF
 # Layer Validation Configuration
 
 This project is **complex** with detected abstraction layers.
@@ -244,7 +244,7 @@ This project is **complex** with detected abstraction layers.
 
 | Layer | Validator | Specialist |
 |-------|-----------|------------|
-$(find agent-os/agents/specialists -name "*.md" -type f 2>/dev/null | while read f; do
+$(find geist/agents/specialists -name "*.md" -type f 2>/dev/null | while read f; do
     SPECIALIST=$(basename "$f" .md)
     LAYER=$(echo "$SPECIALIST" | sed 's/-specialist//')
     echo "| $LAYER | validate-${LAYER}-patterns.md | $SPECIALIST |"
@@ -255,7 +255,7 @@ done)
 Layer validations run automatically:
 - After each /implement-tasks completion
 - During /orchestrate-tasks verification phase
-- When running /cleanup-agent-os
+- When running /cleanup-geist
 
 ## Disabling Layer Validations
 
@@ -284,13 +284,13 @@ PROJECT_WORKFLOW_NEEDS=$(analyze_workflow_needs "$BASEPOINTS_KNOWLEDGE")
 
 if [ -n "$PROJECT_WORKFLOW_NEEDS" ]; then
     # Create project-specific workflows directory
-    mkdir -p agent-os/workflows/project
+    mkdir -p geist/workflows/project
     
     for workflow_need in $PROJECT_WORKFLOW_NEEDS; do
         WORKFLOW_NAME=$(echo "$workflow_need" | cut -d':' -f1)
         WORKFLOW_PURPOSE=$(echo "$workflow_need" | cut -d':' -f2-)
         
-        cat > "agent-os/workflows/project/${WORKFLOW_NAME}.md" << EOF
+        cat > "geist/workflows/project/${WORKFLOW_NAME}.md" << EOF
 # Workflow: ${WORKFLOW_NAME}
 
 ## Purpose
@@ -334,14 +334,14 @@ Verify all workflows are consistent and properly configured:
 
 ```bash
 # Count workflows
-WORKFLOWS_COUNT=$(find agent-os/workflows -name "*.md" -type f | wc -l | tr -d ' ')
+WORKFLOWS_COUNT=$(find geist/workflows -name "*.md" -type f | wc -l | tr -d ' ')
 
 # Count workflow categories
-CATEGORY_COUNT=$(find agent-os/workflows -type d | wc -l | tr -d ' ')
+CATEGORY_COUNT=$(find geist/workflows -type d | wc -l | tr -d ' ')
 
 # Log to reports
-mkdir -p agent-os/output/deploy-agents/reports
-cat > agent-os/output/deploy-agents/reports/workflows-specialization.md << EOF
+mkdir -p geist/output/deploy-agents/reports
+cat > geist/output/deploy-agents/reports/workflows-specialization.md << EOF
 # Workflows Specialization Report
 
 ## Summary
@@ -350,8 +350,8 @@ cat > agent-os/output/deploy-agents/reports/workflows-specialization.md << EOF
 - Workflow Categories: $CATEGORY_COUNT
 
 ## Workflow Categories
-$(find agent-os/workflows -type d | sed 's|agent-os/workflows/||' | while read d; do
-    [ -n "$d" ] && echo "- $d: $(find "agent-os/workflows/$d" -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ') workflows"
+$(find geist/workflows -type d | sed 's|geist/workflows/||' | while read d; do
+    [ -n "$d" ] && echo "- $d: $(find "geist/workflows/$d" -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ') workflows"
 done)
 
 ## Actions Taken
@@ -364,7 +364,7 @@ Proceed to finalize deployment in phase 11.
 EOF
 
 echo "✅ Workflows specialization complete"
-echo "📁 Report saved to: agent-os/output/deploy-agents/reports/workflows-specialization.md"
+echo "📁 Report saved to: geist/output/deploy-agents/reports/workflows-specialization.md"
 ```
 
 {{UNLESS compiled_single_command}}
@@ -379,7 +379,7 @@ Once you've specialized workflows, output the following message:
 **Workflows Updated:** [count]
 **Project-Specific Workflows Created:** [count]
 
-Report: `agent-os/output/deploy-agents/reports/workflows-specialization.md`
+Report: `geist/output/deploy-agents/reports/workflows-specialization.md`
 
 NEXT STEP 👉 Run the command, `11-adapt-structure-and-finalize.md`
 ```

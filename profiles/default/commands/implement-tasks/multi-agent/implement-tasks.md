@@ -19,7 +19,7 @@ First, check if the user has already provided instructions about which task grou
 
 **If the user has NOT provided instructions:**
 
-Read `agent-os/specs/[this-spec]/tasks.md` to review the available task groups, then output the following message to the user and WAIT for their response:
+Read `geist/specs/[this-spec]/tasks.md` to review the available task groups, then output the following message to the user and WAIT for their response:
 
 ```
 Should we proceed with implementation of all task groups in tasks.md?
@@ -34,7 +34,7 @@ For each task group to implement, determine the best specialist agent:
 **Option A: Use orchestration.yml if available**
 
 ```bash
-ORCHESTRATION_FILE="agent-os/specs/[this-spec]/orchestration.yml"
+ORCHESTRATION_FILE="geist/specs/[this-spec]/orchestration.yml"
 
 if [ -f "$ORCHESTRATION_FILE" ]; then
     # Extract assigned specialist for this task group
@@ -74,7 +74,7 @@ fi
 **Option C: Fall back to generic implementer**
 
 ```bash
-if [ -z "$SELECTED_AGENT" ] || [ ! -f "agent-os/agents/specialists/${SELECTED_AGENT}.md" ]; then
+if [ -z "$SELECTED_AGENT" ] || [ ! -f "geist/agents/specialists/${SELECTED_AGENT}.md" ]; then
     SELECTED_AGENT="implementer"
     echo "Using generic implementer agent"
 fi
@@ -85,10 +85,10 @@ fi
 Delegate to the **$SELECTED_AGENT** subagent to implement the specified task group(s):
 
 Provide to the subagent:
-- The specific task group(s) from `agent-os/specs/[this-spec]/tasks.md` including the parent task, all sub-tasks, and any sub-bullet points
-- The path to this spec's documentation: `agent-os/specs/[this-spec]/spec.md`
-- The path to this spec's requirements: `agent-os/specs/[this-spec]/planning/requirements.md`
-- The path to this spec's visuals (if any): `agent-os/specs/[this-spec]/planning/visuals`
+- The specific task group(s) from `geist/specs/[this-spec]/tasks.md` including the parent task, all sub-tasks, and any sub-bullet points
+- The path to this spec's documentation: `geist/specs/[this-spec]/spec.md`
+- The path to this spec's requirements: `geist/specs/[this-spec]/planning/requirements.md`
+- The path to this spec's visuals (if any): `geist/specs/[this-spec]/planning/visuals`
 - The detected layer context (if layer specialist): "This task targets the **$DETECTED_LAYER** layer"
 
 Instruct the subagent to:
@@ -96,7 +96,7 @@ Instruct the subagent to:
 2. Analyze patterns in the codebase according to its built-in workflow
 3. **If layer specialist**: Focus on layer-specific patterns from basepoints
 4. Implement the assigned task group according to requirements and standards
-5. Update `agent-os/specs/[this-spec]/tasks.md` to mark completed tasks with `- [x]`
+5. Update `geist/specs/[this-spec]/tasks.md` to mark completed tasks with `- [x]`
 
 **Layer-specific instructions** (include when using layer specialists):
 
@@ -115,7 +115,7 @@ IF ALL task groups in tasks.md are marked complete with `- [x]`, then proceed wi
 Assuming all tasks are marked complete, then delegate to the **implementation-verifier** subagent to do its implementation verification and produce its final verification report.
 
 Provide to the subagent the following:
-- The path to this spec: `agent-os/specs/[this-spec]`
+- The path to this spec: `geist/specs/[this-spec]`
 Instruct the subagent to do the following:
   1. Run all of its final verifications according to its built-in workflow
-  2. Produce the final verification report in `agent-os/specs/[this-spec]/verifications/final-verification.md`.
+  2. Produce the final verification report in `geist/specs/[this-spec]/verifications/final-verification.md`.

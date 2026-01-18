@@ -13,8 +13,8 @@ This workflow is called by `create-basepoints` Phase 8 after module basepoints a
 ## Prerequisites
 
 - Module basepoints must be generated (Phase 5-7 complete)
-- `agent-os/basepoints/headquarter.md` must exist
-- `agent-os/product/tech-stack.md` must exist
+- `geist/basepoints/headquarter.md` must exist
+- `geist/product/tech-stack.md` must exist
 
 ## Inputs
 
@@ -24,8 +24,8 @@ This workflow is called by `create-basepoints` Phase 8 after module basepoints a
 
 ## Outputs
 
-- Library basepoints in `agent-os/basepoints/libraries/[category]/[library].md`
-- Library index at `agent-os/basepoints/libraries/README.md`
+- Library basepoints in `geist/basepoints/libraries/[category]/[library].md`
+- Library index at `geist/basepoints/libraries/README.md`
 
 ---
 
@@ -38,9 +38,9 @@ Load the tech stack to identify libraries:
 ```bash
 echo "📖 Loading product knowledge..."
 
-TECH_STACK_FILE="agent-os/product/tech-stack.md"
-HEADQUARTER_FILE="agent-os/basepoints/headquarter.md"
-BASEPOINTS_DIR="agent-os/basepoints"
+TECH_STACK_FILE="geist/product/tech-stack.md"
+HEADQUARTER_FILE="geist/basepoints/headquarter.md"
+BASEPOINTS_DIR="geist/basepoints"
 LIBRARIES_DIR="$BASEPOINTS_DIR/libraries"
 
 # Load tech stack
@@ -220,16 +220,16 @@ If security notes exist from the initial `adapt-to-product` research, extract re
 ```bash
 echo "🔒 Extracting security information from enriched knowledge..."
 
-AGENT_OS_PATH="agent-os"
+GEIST_PATH="geist"
 
 for library in $LIBRARIES_LIST; do
     LIBRARY_NAME=$(echo "$library" | cut -d'|' -f1)
     
     SECURITY_NOTES=""
-    if [ -f "$AGENT_OS_PATH/config/enriched-knowledge/security-notes.md" ]; then
+    if [ -f "$GEIST_PATH/config/enriched-knowledge/security-notes.md" ]; then
         echo "   Checking security notes for: $LIBRARY_NAME"
         # Search for library-specific security notes (CVEs, vulnerabilities, security considerations)
-        SECURITY_NOTES=$(grep -A 20 -i "$LIBRARY_NAME" "$AGENT_OS_PATH/config/enriched-knowledge/security-notes.md" 2>/dev/null | head -25)
+        SECURITY_NOTES=$(grep -A 20 -i "$LIBRARY_NAME" "$GEIST_PATH/config/enriched-knowledge/security-notes.md" 2>/dev/null | head -25)
         
         if [ -n "$SECURITY_NOTES" ]; then
             echo "   ⚠️ Security notes found for $LIBRARY_NAME"
@@ -258,10 +258,10 @@ for library in $LIBRARIES_LIST; do
     LIBRARY_NAME=$(echo "$library" | cut -d'|' -f1)
     
     VERSION_STATUS=""
-    if [ -f "$AGENT_OS_PATH/config/enriched-knowledge/version-analysis.md" ]; then
+    if [ -f "$GEIST_PATH/config/enriched-knowledge/version-analysis.md" ]; then
         echo "   Checking version status for: $LIBRARY_NAME"
         # Search for library-specific version info (current version, latest, upgrade recommendations)
-        VERSION_STATUS=$(grep -A 10 -i "$LIBRARY_NAME" "$AGENT_OS_PATH/config/enriched-knowledge/version-analysis.md" 2>/dev/null | head -15)
+        VERSION_STATUS=$(grep -A 10 -i "$LIBRARY_NAME" "$GEIST_PATH/config/enriched-knowledge/version-analysis.md" 2>/dev/null | head -15)
         
         if [ -n "$VERSION_STATUS" ]; then
             echo "   📋 Version status found for $LIBRARY_NAME"
@@ -600,7 +600,7 @@ These library basepoints are used by:
 ## Regeneration
 
 To regenerate library basepoints after adding new libraries:
-1. Update \`agent-os/product/tech-stack.md\`
+1. Update \`geist/product/tech-stack.md\`
 2. Run \`/update-basepoints-and-redeploy\`
 
 ---

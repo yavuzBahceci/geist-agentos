@@ -20,7 +20,7 @@ Inject user-approved context sections into command templates at the top, before 
 ### Step 1: Load Approved Context Sections
 
 ```bash
-CONTEXT_SECTIONS_FILE="agent-os/output/deploy-agents/cache/context-sections.md"
+CONTEXT_SECTIONS_FILE="geist/output/deploy-agents/cache/context-sections.md"
 
 if [ ! -f "$CONTEXT_SECTIONS_FILE" ]; then
     echo "No context sections to apply."
@@ -36,13 +36,13 @@ echo "📋 Loading approved context sections..."
 ### Step 2: Backup Before Changes
 
 ```bash
-BACKUP_DIR="agent-os/output/deploy-agents/backups/$(date +%Y%m%d-%H%M%S)"
+BACKUP_DIR="geist/output/deploy-agents/backups/$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$BACKUP_DIR"
 
 # Backup affected command files
-find agent-os/commands -name "*.md" -type f | while read cmd_file; do
+find geist/commands -name "*.md" -type f | while read cmd_file; do
     # Get relative path for backup structure
-    RELATIVE_PATH=$(echo "$cmd_file" | sed 's|agent-os/commands/||')
+    RELATIVE_PATH=$(echo "$cmd_file" | sed 's|geist/commands/||')
     BACKUP_SUBDIR="$BACKUP_DIR/$(dirname "$RELATIVE_PATH")"
     mkdir -p "$BACKUP_SUBDIR"
     cp "$cmd_file" "$BACKUP_SUBDIR/"
@@ -66,7 +66,7 @@ APPROVED_COMMANDS=(
 )
 
 for CMD_PATH in "${APPROVED_COMMANDS[@]}"; do
-    CMD_FILE="agent-os/commands/$CMD_PATH"
+    CMD_FILE="geist/commands/$CMD_PATH"
     
     if [ ! -f "$CMD_FILE" ]; then
         echo "⚠️  Command file not found: $CMD_FILE"
@@ -108,7 +108,7 @@ done
 ### Step 4: Generate Report
 
 ```bash
-REPORT_FILE="agent-os/output/deploy-agents/reports/context-injection-report.md"
+REPORT_FILE="geist/output/deploy-agents/reports/context-injection-report.md"
 
 COMMANDS_ENHANCED=$(echo "${APPROVED_COMMANDS[@]}" | wc -w)
 
@@ -144,7 +144,7 @@ Each command now has a context section at the top with:
 
 To rollback, restore files from backup directory:
 \`\`\`bash
-cp -r $BACKUP_DIR/* agent-os/commands/
+cp -r $BACKUP_DIR/* geist/commands/
 \`\`\`
 EOF
 
@@ -153,9 +153,9 @@ echo "✅ Context injection report: $REPORT_FILE"
 
 ## Output
 
-- Context sections injected into command files in `agent-os/commands/`
-- Backup location: `agent-os/output/deploy-agents/backups/[timestamp]/`
-- Report: `agent-os/output/deploy-agents/reports/context-injection-report.md`
+- Context sections injected into command files in `geist/commands/`
+- Backup location: `geist/output/deploy-agents/backups/[timestamp]/`
+- Report: `geist/output/deploy-agents/reports/context-injection-report.md`
 
 ## Benefits
 

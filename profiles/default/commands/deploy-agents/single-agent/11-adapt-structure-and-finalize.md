@@ -5,7 +5,7 @@ Now that all commands, standards, workflows, and agents are specialized and upda
 1. **Analyze Project Structure Complexity**: Determine project complexity from basepoints and assess project nature
 2. **Adapt Command Checkpoints**: Adapt command checkpoints based on project complexity (add for complex, combine for simple)
 3. **Verify Full Command Cycle**: Ensure the complete command cycle flows logically (shape-spec → write-spec → create-tasks → implement-tasks → orchestrate-tasks)
-4. **Finalize Transformation**: Ensure all abstract templates are replaced and verify agent-os is ready to use
+4. **Finalize Transformation**: Ensure all abstract templates are replaced and verify geist is ready to use
 5. **Create Deployment Summary**: Inform user of completion and provide next steps
 
 ## Workflow
@@ -16,19 +16,19 @@ Determine project complexity from basepoints and assess project nature:
 
 ```bash
 # Load merged knowledge and basepoints knowledge
-if [ -f "agent-os/output/deploy-agents/merged-knowledge.json" ]; then
-    MERGED_KNOWLEDGE=$(cat agent-os/output/deploy-agents/merged-knowledge.json)
+if [ -f "geist/output/deploy-agents/merged-knowledge.json" ]; then
+    MERGED_KNOWLEDGE=$(cat geist/output/deploy-agents/merged-knowledge.json)
 fi
 
-if [ -f "agent-os/output/deploy-agents/basepoints-knowledge.json" ]; then
-    BASEPOINTS_KNOWLEDGE=$(cat agent-os/output/deploy-agents/basepoints-knowledge.json)
+if [ -f "geist/output/deploy-agents/basepoints-knowledge.json" ]; then
+    BASEPOINTS_KNOWLEDGE=$(cat geist/output/deploy-agents/basepoints-knowledge.json)
 fi
 
 # Extract project structure information from merged knowledge
 PROJECT_STRUCTURE=$(extract_structure_from_merged "$MERGED_KNOWLEDGE")
 
 # Determine number of modules from basepoints
-MODULE_COUNT=$(find agent-os/basepoints -name "agent-base-*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
+MODULE_COUNT=$(find geist/basepoints -name "agent-base-*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
 
 # Determine number of abstraction layers from basepoints
 ABSTRACTION_LAYERS=$(extract_abstraction_layers "$BASEPOINTS_KNOWLEDGE" | wc -l | tr -d ' ')
@@ -60,7 +60,7 @@ else
 fi
 
 # Store complexity assessment
-echo "{\"nature\": \"$PROJECT_NATURE\", \"modules\": $MODULE_COUNT, \"layers\": $ABSTRACTION_LAYERS, \"score\": $COMPLEXITY_SCORE}" > agent-os/output/deploy-agents/reports/complexity-assessment.json
+echo "{\"nature\": \"$PROJECT_NATURE\", \"modules\": $MODULE_COUNT, \"layers\": $ABSTRACTION_LAYERS, \"score\": $COMPLEXITY_SCORE}" > geist/output/deploy-agents/reports/complexity-assessment.json
 ```
 
 Analyze project structure:
@@ -80,14 +80,14 @@ Adapt command checkpoints based on project complexity:
 
 ```bash
 # Load complexity assessment
-COMPLEXITY_ASSESSMENT=$(cat agent-os/output/deploy-agents/reports/complexity-assessment.json)
+COMPLEXITY_ASSESSMENT=$(cat geist/output/deploy-agents/reports/complexity-assessment.json)
 PROJECT_NATURE=$(echo "$COMPLEXITY_ASSESSMENT" | grep -o '"nature": "[^"]*"' | cut -d'"' -f4)
 
 # Commands to adapt
 COMMANDS=("shape-spec" "write-spec" "create-tasks" "implement-tasks")
 
 for cmd in "${COMMANDS[@]}"; do
-    CMD_DIR="agent-os/commands/${cmd}"
+    CMD_DIR="geist/commands/${cmd}"
     
     if [ -d "$CMD_DIR" ]; then
         # Read command and phase files
@@ -161,9 +161,9 @@ COMMAND_CYCLE=("shape-spec" "write-spec" "create-tasks" "implement-tasks" "orche
 echo "🔍 Verifying full command cycle logical flow..."
 
 # Check shape-spec → write-spec flow
-if [ -f "agent-os/commands/shape-spec/single-agent/shape-spec.md" ] && [ -f "agent-os/commands/write-spec/single-agent/write-spec.md" ]; then
-    SHAPE_SPEC=$(cat agent-os/commands/shape-spec/single-agent/shape-spec.md)
-    WRITE_SPEC=$(cat agent-os/commands/write-spec/single-agent/write-spec.md)
+if [ -f "geist/commands/shape-spec/single-agent/shape-spec.md" ] && [ -f "geist/commands/write-spec/single-agent/write-spec.md" ]; then
+    SHAPE_SPEC=$(cat geist/commands/shape-spec/single-agent/shape-spec.md)
+    WRITE_SPEC=$(cat geist/commands/write-spec/single-agent/write-spec.md)
     
     # Verify shape-spec outputs are referenced in write-spec
     if echo "$WRITE_SPEC" | grep -q "spec.md\|requirements.md\|planning/"; then
@@ -174,8 +174,8 @@ if [ -f "agent-os/commands/shape-spec/single-agent/shape-spec.md" ] && [ -f "age
 fi
 
 # Check write-spec → create-tasks flow
-if [ -f "agent-os/commands/write-spec/single-agent/write-spec.md" ] && [ -f "agent-os/commands/create-tasks/single-agent/create-tasks.md" ]; then
-    CREATE_TASKS=$(cat agent-os/commands/create-tasks/single-agent/create-tasks.md)
+if [ -f "geist/commands/write-spec/single-agent/write-spec.md" ] && [ -f "geist/commands/create-tasks/single-agent/create-tasks.md" ]; then
+    CREATE_TASKS=$(cat geist/commands/create-tasks/single-agent/create-tasks.md)
     
     # Verify create-tasks references spec.md and requirements.md
     if echo "$CREATE_TASKS" | grep -q "spec.md\|requirements.md"; then
@@ -186,8 +186,8 @@ if [ -f "agent-os/commands/write-spec/single-agent/write-spec.md" ] && [ -f "age
 fi
 
 # Check create-tasks → implement-tasks flow
-if [ -f "agent-os/commands/create-tasks/single-agent/create-tasks.md" ] && [ -f "agent-os/commands/implement-tasks/single-agent/implement-tasks.md" ]; then
-    IMPLEMENT_TASKS=$(cat agent-os/commands/implement-tasks/single-agent/implement-tasks.md)
+if [ -f "geist/commands/create-tasks/single-agent/create-tasks.md" ] && [ -f "geist/commands/implement-tasks/single-agent/implement-tasks.md" ]; then
+    IMPLEMENT_TASKS=$(cat geist/commands/implement-tasks/single-agent/implement-tasks.md)
     
     # Verify implement-tasks references tasks.md
     if echo "$IMPLEMENT_TASKS" | grep -q "tasks.md"; then
@@ -198,8 +198,8 @@ if [ -f "agent-os/commands/create-tasks/single-agent/create-tasks.md" ] && [ -f 
 fi
 
 # Check implement-tasks → orchestrate-tasks flow
-if [ -f "agent-os/commands/implement-tasks/single-agent/implement-tasks.md" ] && [ -f "agent-os/commands/orchestrate-tasks/orchestrate-tasks.md" ]; then
-    ORCHESTRATE_TASKS=$(cat agent-os/commands/orchestrate-tasks/orchestrate-tasks.md)
+if [ -f "geist/commands/implement-tasks/single-agent/implement-tasks.md" ] && [ -f "geist/commands/orchestrate-tasks/orchestrate-tasks.md" ]; then
+    ORCHESTRATE_TASKS=$(cat geist/commands/orchestrate-tasks/orchestrate-tasks.md)
     
     # Verify orchestrate-tasks references tasks.md
     if echo "$ORCHESTRATE_TASKS" | grep -q "tasks.md"; then
@@ -213,7 +213,7 @@ fi
 echo "🔍 Verifying commands work together as cohesive cycle..."
 ALL_COMMANDS_EXIST=true
 for cmd in "${COMMAND_CYCLE[@]}"; do
-    if [ ! -f "agent-os/commands/${cmd}/single-agent/${cmd}.md" ] && [ ! -f "agent-os/commands/${cmd}/${cmd}.md" ]; then
+    if [ ! -f "geist/commands/${cmd}/single-agent/${cmd}.md" ] && [ ! -f "geist/commands/${cmd}/${cmd}.md" ]; then
         echo "⚠️  Warning: Command $cmd not found in specialized location"
         ALL_COMMANDS_EXIST=false
     fi
@@ -241,17 +241,17 @@ Run comprehensive validation to ensure transformation quality:
 echo "🔍 Running comprehensive validation..."
 
 # Create validation reports directory
-mkdir -p agent-os/output/deploy-agents/reports/validation
+mkdir -p geist/output/deploy-agents/reports/validation
 
 # Set spec path for validation workflows (use deploy-agents reports as temporary spec path)
-SPEC_PATH="agent-os/output/deploy-agents"
+SPEC_PATH="geist/output/deploy-agents"
 VALIDATION_CACHE="$SPEC_PATH/reports/validation"
 
 # Run comprehensive validation using orchestrator
 echo "🔍 Running comprehensive validation..."
 
 # Set up validation context
-SPEC_PATH="agent-os/output/deploy-agents"
+SPEC_PATH="geist/output/deploy-agents"
 VALIDATION_CACHE="$SPEC_PATH/reports/validation"
 mkdir -p "$VALIDATION_CACHE"
 
@@ -394,7 +394,7 @@ cat "$VALIDATION_CACHE/validation-summary.md"
 if [ "${CRITICAL_ISSUES:-false}" = "true" ]; then
     echo ""
     echo "❌ Deploy-agents failed due to critical validation issues."
-    echo "📁 Detailed validation reports are available in: agent-os/output/deploy-agents/reports/validation/"
+    echo "📁 Detailed validation reports are available in: geist/output/deploy-agents/reports/validation/"
     echo "🔧 Please fix the critical issues and run deploy-agents again."
     exit 1
 fi
@@ -404,7 +404,7 @@ echo "✅ Comprehensive validation complete"
 
 ### Step 5: Finalize Transformation and Verify
 
-Ensure all abstract templates are replaced and verify agent-os is ready to use:
+Ensure all abstract templates are replaced and verify geist is ready to use:
 
 ```bash
 echo "🔍 Finalizing transformation and verifying..."
@@ -414,8 +414,8 @@ ABSTRACT_COMMANDS=("shape-spec" "write-spec" "create-tasks" "implement-tasks" "o
 ALL_REPLACED=true
 
 for cmd in "${ABSTRACT_COMMANDS[@]}"; do
-    # Check if specialized version exists in agent-os/commands/
-    if [ -f "agent-os/commands/${cmd}/single-agent/${cmd}.md" ] || [ -f "agent-os/commands/${cmd}/${cmd}.md" ]; then
+    # Check if specialized version exists in geist/commands/
+    if [ -f "geist/commands/${cmd}/single-agent/${cmd}.md" ] || [ -f "geist/commands/${cmd}/${cmd}.md" ]; then
         echo "✅ Specialized version exists for: $cmd"
     else
         echo "⚠️  Warning: Specialized version not found for: $cmd"
@@ -423,8 +423,8 @@ for cmd in "${ABSTRACT_COMMANDS[@]}"; do
     fi
     
     # Verify specialized commands don't reference profiles/default (one-time transformation complete)
-    if [ -f "agent-os/commands/${cmd}/single-agent/${cmd}.md" ]; then
-        SPECIALIZED_CMD=$(cat "agent-os/commands/${cmd}/single-agent/${cmd}.md")
+    if [ -f "geist/commands/${cmd}/single-agent/${cmd}.md" ]; then
+        SPECIALIZED_CMD=$(cat "geist/commands/${cmd}/single-agent/${cmd}.md")
         
         if echo "$SPECIALIZED_CMD" | grep -q "profiles/default"; then
             echo "⚠️  Warning: $cmd still references profiles/default (should be specialized)"
@@ -433,11 +433,11 @@ for cmd in "${ABSTRACT_COMMANDS[@]}"; do
     fi
 done
 
-# Verify agent-os is ready to use with specialized commands
-echo "🔍 Verifying agent-os is ready to use..."
+# Verify geist is ready to use with specialized commands
+echo "🔍 Verifying geist is ready to use..."
 
 # Check that all required directories exist
-REQUIRED_DIRS=("agent-os/commands" "agent-os/standards" "agent-os/workflows" "agent-os/agents")
+REQUIRED_DIRS=("geist/commands" "geist/standards" "geist/workflows" "geist/agents")
 for dir in "${REQUIRED_DIRS[@]}"; do
     if [ -d "$dir" ]; then
         echo "✅ Directory exists: $dir"
@@ -450,7 +450,7 @@ done
 # Check that at least one specialized command exists
 if [ "$ALL_REPLACED" = true ]; then
     echo "✅ Transformation complete: All abstract templates replaced with specialized versions"
-    echo "✅ agent-os is ready to use with specialized commands"
+    echo "✅ geist is ready to use with specialized commands"
 else
     echo "⚠️  Warning: Some issues found during transformation verification"
 fi
@@ -458,10 +458,10 @@ fi
 
 Finalize transformation:
 - **Replace Abstract Templates**: Ensure all abstract templates from profiles/default are replaced with specialized versions
-  - Verify specialized versions exist in agent-os/commands/ for all five core commands
+  - Verify specialized versions exist in geist/commands/ for all five core commands
   - Check that specialized commands don't reference profiles/default (one-time transformation complete)
 
-- **Verify Agent-OS Ready**: Verify agent-os is ready to use with specialized commands
+- **Verify Agent-OS Ready**: Verify geist is ready to use with specialized commands
   - Check that all required directories exist (commands/, standards/, workflows/, agents/)
   - Verify specialized commands are accessible and functional
 
@@ -473,16 +473,16 @@ Create summary of deployment completion:
 echo "📋 Creating deployment completion summary..."
 
 # Count specialized commands
-SPECIALIZED_COMMANDS_COUNT=$(find agent-os/commands -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
+SPECIALIZED_COMMANDS_COUNT=$(find geist/commands -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
 
 # Count standards created/updated
-STANDARDS_COUNT=$(find agent-os/standards -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
+STANDARDS_COUNT=$(find geist/standards -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
 
 # Count workflows created/updated
-WORKFLOWS_COUNT=$(find agent-os/workflows -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
+WORKFLOWS_COUNT=$(find geist/workflows -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
 
 # Count agents created/updated
-AGENTS_COUNT=$(find agent-os/agents -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
+AGENTS_COUNT=$(find geist/agents -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
 
 # Load validation summary for inclusion in deployment summary
 VALIDATION_SUMMARY=""
@@ -491,7 +491,7 @@ if [ -f "$VALIDATION_CACHE/validation-summary.md" ]; then
 fi
 
 # Create deployment summary
-cat > agent-os/output/deploy-agents/reports/deployment-summary.md << EOF
+cat > geist/output/deploy-agents/reports/deployment-summary.md << EOF
 # Deploy-Agents Transformation Complete
 
 ## Transformation Summary
@@ -561,7 +561,7 @@ Command checkpoints have been adapted based on project complexity.
 
 ## Next Steps
 
-Your agent-os is now ready to use with specialized commands tailored to your project!
+Your geist is now ready to use with specialized commands tailored to your project!
 
 1. **Start using specialized commands**:
    - Run \`/shape-spec\` to start shaping a new feature specification
@@ -589,7 +589,7 @@ Your agent-os is now ready to use with specialized commands tailored to your pro
 
 EOF
 
-cat agent-os/output/deploy-agents/reports/deployment-summary.md
+cat geist/output/deploy-agents/reports/deployment-summary.md
 ```
 
 Create deployment summary:
@@ -597,14 +597,14 @@ Create deployment summary:
 - **Specialized Commands**: List all specialized commands created (shape-spec, write-spec, create-tasks, implement-tasks, orchestrate-tasks)
 - **Standards, Workflows, Agents**: List counts of standards, workflows, and agents created/updated
 - **Project Complexity**: Include project complexity assessment and how it affected command adaptation
-- **Next Steps**: Provide clear next steps for using specialized agent-os commands
+- **Next Steps**: Provide clear next steps for using specialized geist commands
 
 {{UNLESS compiled_single_command}}
 ## Display confirmation and next step
 
 Once transformation is finalized and verified, output the deployment summary:
 
-Display the contents of `agent-os/output/deploy-agents/reports/deployment-summary.md` to the user.
+Display the contents of `geist/output/deploy-agents/reports/deployment-summary.md` to the user.
 {{ENDUNLESS compiled_single_command}}
 
 {{UNLESS standards_as_claude_code_skills}}
@@ -622,5 +622,5 @@ IMPORTANT: Ensure that the finalized transformation aligns with the user's prefe
 - Must verify full command cycle flows logically (shape-spec → write-spec → create-tasks → implement-tasks → orchestrate-tasks)
 - Must ensure all abstract templates are replaced with specialized versions
 - Must verify abstract profiles/default versions are no longer referenced (one-time transformation complete)
-- Must verify agent-os is ready to use with specialized commands
+- Must verify geist is ready to use with specialized commands
 - Must inform user of completion and provide clear next steps

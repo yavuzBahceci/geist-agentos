@@ -16,19 +16,19 @@ Load knowledge and complexity assessment:
 
 ```bash
 # Load merged knowledge
-if [ -f "agent-os/output/deploy-agents/knowledge/merged-knowledge.json" ]; then
-    MERGED_KNOWLEDGE=$(cat agent-os/output/deploy-agents/knowledge/merged-knowledge.json)
+if [ -f "geist/output/deploy-agents/knowledge/merged-knowledge.json" ]; then
+    MERGED_KNOWLEDGE=$(cat geist/output/deploy-agents/knowledge/merged-knowledge.json)
     echo "✅ Loaded merged knowledge"
 fi
 
 # Load basepoints knowledge
-if [ -f "agent-os/output/deploy-agents/knowledge/basepoints-knowledge.json" ]; then
-    BASEPOINTS_KNOWLEDGE=$(cat agent-os/output/deploy-agents/knowledge/basepoints-knowledge.json)
+if [ -f "geist/output/deploy-agents/knowledge/basepoints-knowledge.json" ]; then
+    BASEPOINTS_KNOWLEDGE=$(cat geist/output/deploy-agents/knowledge/basepoints-knowledge.json)
 fi
 
 # Load complexity assessment
-if [ -f "agent-os/output/deploy-agents/reports/complexity-assessment.json" ]; then
-    COMPLEXITY=$(cat agent-os/output/deploy-agents/reports/complexity-assessment.json)
+if [ -f "geist/output/deploy-agents/reports/complexity-assessment.json" ]; then
+    COMPLEXITY=$(cat geist/output/deploy-agents/reports/complexity-assessment.json)
     PROJECT_NATURE=$(echo "$COMPLEXITY" | grep -o '"nature": *"[^"]*"' | cut -d'"' -f4)
 else
     PROJECT_NATURE="moderate"
@@ -43,7 +43,7 @@ Determine which agents are needed for this project:
 
 ```bash
 # List existing agents
-EXISTING_AGENTS=$(find agent-os/agents -name "*.md" -type f 2>/dev/null)
+EXISTING_AGENTS=$(find geist/agents -name "*.md" -type f 2>/dev/null)
 
 # For each agent, evaluate relevance based on:
 # 1. Project patterns from basepoints
@@ -120,7 +120,7 @@ if [ "$PROJECT_NATURE" = "simple" ]; then
     )
     
     for optional in "${COMBINABLE_AGENTS[@]}"; do
-        OPTIONAL_FILE="agent-os/agents/${optional}.md"
+        OPTIONAL_FILE="geist/agents/${optional}.md"
         if [ -f "$OPTIONAL_FILE" ]; then
             echo "ℹ️  Agent marked as optional for simple project: $optional"
         fi
@@ -138,9 +138,9 @@ Generate specialized agents for each detected abstraction layer from basepoints:
 echo "📋 Generating layer-specialist agents..."
 
 # Extract abstraction layers from headquarter.md
-if [ -f "agent-os/basepoints/headquarter.md" ]; then
+if [ -f "geist/basepoints/headquarter.md" ]; then
     # Parse detected layers from headquarter
-    DETECTED_LAYERS=$(grep -A 50 "Detected Abstraction Layers" agent-os/basepoints/headquarter.md | \
+    DETECTED_LAYERS=$(grep -A 50 "Detected Abstraction Layers" geist/basepoints/headquarter.md | \
         grep -E "^\| \*\*[A-Z]+" | \
         sed 's/.*\*\*\([A-Z_]*\)\*\*.*/\1/' | \
         tr '[:upper:]' '[:lower:]')
@@ -148,7 +148,7 @@ if [ -f "agent-os/basepoints/headquarter.md" ]; then
     echo "Detected layers: $DETECTED_LAYERS"
     
     # Create layer-specialist registry
-    mkdir -p agent-os/agents/specialists
+    mkdir -p geist/agents/specialists
     
     SPECIALISTS_CREATED=0
     
@@ -160,7 +160,7 @@ if [ -f "agent-os/basepoints/headquarter.md" ]; then
         
         # Generate specialist name
         SPECIALIST_NAME="${layer}-specialist"
-        SPECIALIST_FILE="agent-os/agents/specialists/${SPECIALIST_NAME}.md"
+        SPECIALIST_FILE="geist/agents/specialists/${SPECIALIST_NAME}.md"
         
         # Extract layer-specific patterns from basepoints
         LAYER_PATTERNS=""
@@ -168,12 +168,12 @@ if [ -f "agent-os/basepoints/headquarter.md" ]; then
         LAYER_CONTEXT=""
         
         # Find module basepoints for this layer
-        if [ -d "agent-os/basepoints/modules" ]; then
-            LAYER_MODULES=$(find agent-os/basepoints/modules -name "*.md" -exec grep -l -i "$layer" {} \; 2>/dev/null | head -5)
+        if [ -d "geist/basepoints/modules" ]; then
+            LAYER_MODULES=$(find geist/basepoints/modules -name "*.md" -exec grep -l -i "$layer" {} \; 2>/dev/null | head -5)
             if [ -n "$LAYER_MODULES" ]; then
                 LAYER_CONTEXT="Reference these basepoints for ${layer} layer patterns:\n"
                 for module in $LAYER_MODULES; do
-                    LAYER_CONTEXT="${LAYER_CONTEXT}- @agent-os/$(echo $module | sed 's|^agent-os/||')\n"
+                    LAYER_CONTEXT="${LAYER_CONTEXT}- @geist/$(echo $module | sed 's|^geist/||')\n"
                 done
             fi
         fi
@@ -181,27 +181,27 @@ if [ -f "agent-os/basepoints/headquarter.md" ]; then
         # Map layer to relevant standards
         case "$layer" in
             ui|frontend|presentation|view)
-                LAYER_STANDARDS="@agent-os/standards/global/conventions.md"
+                LAYER_STANDARDS="@geist/standards/global/conventions.md"
                 LAYER_FOCUS="UI components, user interactions, visual presentation, accessibility"
                 ;;
             api|backend|service|logic)
-                LAYER_STANDARDS="@agent-os/standards/global/conventions.md\n@agent-os/standards/quality/assurance.md"
+                LAYER_STANDARDS="@geist/standards/global/conventions.md\n@geist/standards/quality/assurance.md"
                 LAYER_FOCUS="Business logic, API endpoints, service orchestration, data validation"
                 ;;
             data|database|persistence|storage)
-                LAYER_STANDARDS="@agent-os/standards/global/conventions.md"
+                LAYER_STANDARDS="@geist/standards/global/conventions.md"
                 LAYER_FOCUS="Data models, database operations, migrations, caching strategies"
                 ;;
             platform|infrastructure|system)
-                LAYER_STANDARDS="@agent-os/standards/global/conventions.md\n@agent-os/standards/quality/assurance.md"
+                LAYER_STANDARDS="@geist/standards/global/conventions.md\n@geist/standards/quality/assurance.md"
                 LAYER_FOCUS="Platform-specific code, system integration, deployment configuration"
                 ;;
             test|testing|quality)
-                LAYER_STANDARDS="@agent-os/standards/testing/test-writing.md\n@agent-os/standards/quality/assurance.md"
+                LAYER_STANDARDS="@geist/standards/testing/test-writing.md\n@geist/standards/quality/assurance.md"
                 LAYER_FOCUS="Test implementation, coverage, quality validation, test patterns"
                 ;;
             *)
-                LAYER_STANDARDS="@agent-os/standards/global/conventions.md"
+                LAYER_STANDARDS="@geist/standards/global/conventions.md"
                 LAYER_FOCUS="Domain-specific implementation for ${layer} layer"
                 ;;
         esac
@@ -260,7 +260,7 @@ EOF
     done
     
     # Create specialist registry for orchestration
-    cat > "agent-os/agents/specialists/registry.yml" << EOF
+    cat > "geist/agents/specialists/registry.yml" << EOF
 # Layer Specialist Registry
 # Auto-generated during deploy-agents
 # Used by orchestrate-tasks to suggest specialists for task groups
@@ -270,7 +270,7 @@ $(for layer in $DETECTED_LAYERS; do
     if [[ ! "$layer" =~ ^(root|documentation|config)$ ]]; then
         echo "  - name: ${layer}-specialist"
         echo "    layer: ${layer}"
-        echo "    file: agent-os/agents/specialists/${layer}-specialist.md"
+        echo "    file: geist/agents/specialists/${layer}-specialist.md"
     fi
 done)
 
@@ -318,7 +318,7 @@ layer_keywords:
     - coverage
 EOF
     
-    echo "✅ Created specialist registry: agent-os/agents/specialists/registry.yml"
+    echo "✅ Created specialist registry: geist/agents/specialists/registry.yml"
     echo "📊 Total specialists created: $SPECIALISTS_CREATED"
 else
     echo "⚠️  No headquarter.md found - skipping layer specialist generation"
@@ -343,7 +343,7 @@ if [ -n "$PROJECT_AGENT_NEEDS" ]; then
         AGENT_NAME=$(echo "$agent_need" | cut -d':' -f1)
         AGENT_PURPOSE=$(echo "$agent_need" | cut -d':' -f2-)
         
-        cat > "agent-os/agents/${AGENT_NAME}.md" << EOF
+        cat > "geist/agents/${AGENT_NAME}.md" << EOF
 ---
 name: ${AGENT_NAME}
 description: ${AGENT_PURPOSE}
@@ -394,13 +394,13 @@ Verify all agents are consistent and properly configured:
 
 ```bash
 # Count agents
-CORE_AGENTS_COUNT=$(find agent-os/agents -maxdepth 1 -name "*.md" -type f | wc -l | tr -d ' ')
-SPECIALIST_COUNT=$(find agent-os/agents/specialists -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
+CORE_AGENTS_COUNT=$(find geist/agents -maxdepth 1 -name "*.md" -type f | wc -l | tr -d ' ')
+SPECIALIST_COUNT=$(find geist/agents/specialists -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
 TOTAL_AGENTS=$((CORE_AGENTS_COUNT + SPECIALIST_COUNT))
 
 # Log to reports
-mkdir -p agent-os/output/deploy-agents/reports
-cat > agent-os/output/deploy-agents/reports/agents-specialization.md << EOF
+mkdir -p geist/output/deploy-agents/reports
+cat > geist/output/deploy-agents/reports/agents-specialization.md << EOF
 # Agents Specialization Report
 
 ## Summary
@@ -410,13 +410,13 @@ cat > agent-os/output/deploy-agents/reports/agents-specialization.md << EOF
 - Total Agents: $TOTAL_AGENTS
 
 ## Core Agents
-$(find agent-os/agents -maxdepth 1 -name "*.md" -type f | while read f; do
+$(find geist/agents -maxdepth 1 -name "*.md" -type f | while read f; do
     echo "- $(basename "$f" .md)"
 done)
 
 ## Layer Specialists
-$(if [ -d "agent-os/agents/specialists" ]; then
-    find agent-os/agents/specialists -name "*.md" -type f | while read f; do
+$(if [ -d "geist/agents/specialists" ]; then
+    find geist/agents/specialists -name "*.md" -type f | while read f; do
         echo "- $(basename "$f" .md)"
     done
 else
@@ -424,11 +424,11 @@ else
 fi)
 
 ## Specialist Registry
-$(if [ -f "agent-os/agents/specialists/registry.yml" ]; then
-    echo "✅ Registry created at: agent-os/agents/specialists/registry.yml"
+$(if [ -f "geist/agents/specialists/registry.yml" ]; then
+    echo "✅ Registry created at: geist/agents/specialists/registry.yml"
     echo ""
     echo "Layer mappings:"
-    grep -A1 "^  - name:" agent-os/agents/specialists/registry.yml | \
+    grep -A1 "^  - name:" geist/agents/specialists/registry.yml | \
         grep -E "name:|layer:" | \
         sed 's/^  /    /'
 else
@@ -459,7 +459,7 @@ EOF
 
 echo "✅ Agents specialization complete"
 echo "📊 Core agents: $CORE_AGENTS_COUNT | Layer specialists: $SPECIALIST_COUNT"
-echo "📁 Report saved to: agent-os/output/deploy-agents/reports/agents-specialization.md"
+echo "📁 Report saved to: geist/output/deploy-agents/reports/agents-specialization.md"
 ```
 
 {{UNLESS compiled_single_command}}
@@ -474,7 +474,7 @@ Once you've specialized agents, output the following message:
 **Agents Updated:** [count]
 **Project-Specific Agents Created:** [count]
 
-Report: `agent-os/output/deploy-agents/reports/agents-specialization.md`
+Report: `geist/output/deploy-agents/reports/agents-specialization.md`
 
 NEXT STEP 👉 Run the command, `10-specialize-workflows.md`
 ```

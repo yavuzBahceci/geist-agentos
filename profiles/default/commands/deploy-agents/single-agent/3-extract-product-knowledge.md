@@ -12,11 +12,11 @@ Now that basepoint knowledge has been extracted, proceed with extracting knowled
 
 ### Step 1: Read Product Mission File
 
-Read and extract knowledge from `agent-os/product/mission.md`:
+Read and extract knowledge from `geist/product/mission.md`:
 
 ```bash
-if [ -f "agent-os/product/mission.md" ]; then
-    MISSION_CONTENT=$(cat agent-os/product/mission.md)
+if [ -f "geist/product/mission.md" ]; then
+    MISSION_CONTENT=$(cat geist/product/mission.md)
     echo "✅ Reading product mission file"
     
     # Extract product context and goals
@@ -45,11 +45,11 @@ Understand how product relates to software project structure:
 
 ### Step 2: Read Product Roadmap File
 
-Read and extract knowledge from `agent-os/product/roadmap.md`:
+Read and extract knowledge from `geist/product/roadmap.md`:
 
 ```bash
-if [ -f "agent-os/product/roadmap.md" ]; then
-    ROADMAP_CONTENT=$(cat agent-os/product/roadmap.md)
+if [ -f "geist/product/roadmap.md" ]; then
+    ROADMAP_CONTENT=$(cat geist/product/roadmap.md)
     echo "✅ Reading product roadmap file"
     
     # Extract product direction and planned features
@@ -82,11 +82,11 @@ Understand product evolution context:
 
 ### Step 3: Read Tech Stack File
 
-Read and extract knowledge from `agent-os/product/tech-stack.md`:
+Read and extract knowledge from `geist/product/tech-stack.md`:
 
 ```bash
-if [ -f "agent-os/product/tech-stack.md" ]; then
-    TECH_STACK_CONTENT=$(cat agent-os/product/tech-stack.md)
+if [ -f "geist/product/tech-stack.md" ]; then
+    TECH_STACK_CONTENT=$(cat geist/product/tech-stack.md)
     echo "✅ Reading tech stack file"
     
     # Extract technology choices and constraints
@@ -214,11 +214,11 @@ PRODUCT_KNOWLEDGE="{
 }"
 
 # Store in cache for merging phase
-mkdir -p agent-os/output/deploy-agents/knowledge
-echo "$PRODUCT_KNOWLEDGE" > agent-os/output/deploy-agents/knowledge/product-knowledge.json
+mkdir -p geist/output/deploy-agents/knowledge
+echo "$PRODUCT_KNOWLEDGE" > geist/output/deploy-agents/knowledge/product-knowledge.json
 
 # Create markdown summary for reference
-cat > agent-os/output/deploy-agents/knowledge/product-knowledge-summary.md << 'EOF'
+cat > geist/output/deploy-agents/knowledge/product-knowledge-summary.md << 'EOF'
 # Extracted Product Knowledge
 
 ## Mission Context

@@ -6,7 +6,7 @@ Now that knowledge has been merged and conflicts resolved, proceed with speciali
 2. **Inject Project-Specific Knowledge**: Inject patterns, standards, flows, strategies, and testing approaches from merged knowledge
 3. **Replace Abstract Placeholders**: Replace {{workflows/...}}, {{standards/...}} with project-specific content
 4. **Replace Generic Examples**: Replace generic examples with project-specific patterns from basepoints
-5. **Write Specialized Commands**: Write specialized commands to agent-os/commands/ (replace abstract versions)
+5. **Write Specialized Commands**: Write specialized commands to geist/commands/ (replace abstract versions)
 
 ## Workflow
 
@@ -16,18 +16,18 @@ Load merged knowledge from previous phase:
 
 ```bash
 # Load merged knowledge from cache
-if [ -f "agent-os/output/deploy-agents/knowledge/merged-knowledge.json" ]; then
-    MERGED_KNOWLEDGE=$(cat agent-os/output/deploy-agents/knowledge/merged-knowledge.json)
+if [ -f "geist/output/deploy-agents/knowledge/merged-knowledge.json" ]; then
+    MERGED_KNOWLEDGE=$(cat geist/output/deploy-agents/knowledge/merged-knowledge.json)
     echo "✅ Loaded merged knowledge"
 fi
 
 # Load command-specific knowledge
-if [ -f "agent-os/output/deploy-agents/knowledge/shape-spec-knowledge.json" ]; then
-    SHAPE_SPEC_KNOWLEDGE=$(cat agent-os/output/deploy-agents/knowledge/shape-spec-knowledge.json)
+if [ -f "geist/output/deploy-agents/knowledge/shape-spec-knowledge.json" ]; then
+    SHAPE_SPEC_KNOWLEDGE=$(cat geist/output/deploy-agents/knowledge/shape-spec-knowledge.json)
 fi
 
-if [ -f "agent-os/output/deploy-agents/knowledge/write-spec-knowledge.json" ]; then
-    WRITE_SPEC_KNOWLEDGE=$(cat agent-os/output/deploy-agents/knowledge/write-spec-knowledge.json)
+if [ -f "geist/output/deploy-agents/knowledge/write-spec-knowledge.json" ]; then
+    WRITE_SPEC_KNOWLEDGE=$(cat geist/output/deploy-agents/knowledge/write-spec-knowledge.json)
 fi
 ```
 
@@ -235,18 +235,18 @@ Specialize write-spec command:
   - Reference test organization structures from basepoints
   - Use project-specific test strategies as guidance in specification writing
 
-### Step 6: Write Specialized Commands to agent-os/commands/
+### Step 6: Write Specialized Commands to geist/commands/
 
-Write specialized commands to agent-os/commands/, replacing abstract versions:
+Write specialized commands to geist/commands/, replacing abstract versions:
 
 ```bash
-# Ensure agent-os/commands/ directories exist
-mkdir -p agent-os/commands/shape-spec/single-agent
-mkdir -p agent-os/commands/write-spec/single-agent
+# Ensure geist/commands/ directories exist
+mkdir -p geist/commands/shape-spec/single-agent
+mkdir -p geist/commands/write-spec/single-agent
 
 # Write specialized shape-spec command
-echo "$SPECIALIZED_SHAPE_SPEC" > agent-os/commands/shape-spec/shape-spec.md
-echo "$SPECIALIZED_SHAPE_SPEC" > agent-os/commands/shape-spec/single-agent/shape-spec.md
+echo "$SPECIALIZED_SHAPE_SPEC" > geist/commands/shape-spec/shape-spec.md
+echo "$SPECIALIZED_SHAPE_SPEC" > geist/commands/shape-spec/single-agent/shape-spec.md
 
 # Write specialized shape-spec phase files
 for phase_file in profiles/default/commands/shape-spec/single-agent/*.md; do
@@ -257,28 +257,28 @@ for phase_file in profiles/default/commands/shape-spec/single-agent/*.md; do
         PHASE_CONTENT=$(extract_phase_from_specialized "$SPECIALIZED_SHAPE_SPEC_PHASES" "$PHASE_NAME")
         
         # Write specialized phase file
-        echo "$PHASE_CONTENT" > "agent-os/commands/shape-spec/single-agent/$PHASE_NAME"
+        echo "$PHASE_CONTENT" > "geist/commands/shape-spec/single-agent/$PHASE_NAME"
     fi
 done
 
 # Write specialized write-spec command
-echo "$SPECIALIZED_WRITE_SPEC" > agent-os/commands/write-spec/write-spec.md
-echo "$SPECIALIZED_WRITE_SPEC" > agent-os/commands/write-spec/single-agent/write-spec.md
+echo "$SPECIALIZED_WRITE_SPEC" > geist/commands/write-spec/write-spec.md
+echo "$SPECIALIZED_WRITE_SPEC" > geist/commands/write-spec/single-agent/write-spec.md
 
 # Write specialized write-spec workflow (if workflows directory exists)
-mkdir -p agent-os/workflows/specification
-echo "$SPECIALIZED_WRITE_SPEC_WORKFLOW" > agent-os/workflows/specification/write-spec.md
+mkdir -p geist/workflows/specification
+echo "$SPECIALIZED_WRITE_SPEC_WORKFLOW" > geist/workflows/specification/write-spec.md
 
-echo "✅ Specialized shape-spec and write-spec commands written to agent-os/commands/"
+echo "✅ Specialized shape-spec and write-spec commands written to geist/commands/"
 ```
 
 Write specialized commands:
-- **shape-spec.md**: Write specialized shape-spec command to `agent-os/commands/shape-spec/shape-spec.md` (replace abstract version)
-- **single-agent/shape-spec.md**: Write specialized single-agent version to `agent-os/commands/shape-spec/single-agent/shape-spec.md`
-- **shape-spec phase files**: Write specialized phase files (1-initialize-spec.md, 2-shape-spec.md) to `agent-os/commands/shape-spec/single-agent/`
-- **write-spec.md**: Write specialized write-spec command to `agent-os/commands/write-spec/write-spec.md` (replace abstract version)
-- **single-agent/write-spec.md**: Write specialized single-agent version to `agent-os/commands/write-spec/single-agent/write-spec.md`
-- **write-spec workflow**: Write specialized workflow to `agent-os/workflows/specification/write-spec.md` (if needed)
+- **shape-spec.md**: Write specialized shape-spec command to `geist/commands/shape-spec/shape-spec.md` (replace abstract version)
+- **single-agent/shape-spec.md**: Write specialized single-agent version to `geist/commands/shape-spec/single-agent/shape-spec.md`
+- **shape-spec phase files**: Write specialized phase files (1-initialize-spec.md, 2-shape-spec.md) to `geist/commands/shape-spec/single-agent/`
+- **write-spec.md**: Write specialized write-spec command to `geist/commands/write-spec/write-spec.md` (replace abstract version)
+- **single-agent/write-spec.md**: Write specialized single-agent version to `geist/commands/write-spec/single-agent/write-spec.md`
+- **write-spec workflow**: Write specialized workflow to `geist/workflows/specification/write-spec.md` (if needed)
 
 Ensure specialized commands:
 - Are ready to use immediately (no further processing needed)
@@ -297,7 +297,7 @@ Once shape-spec and write-spec commands are specialized and written, output the 
 - shape-spec command: Specialized with project-specific patterns, standards, and examples
 - write-spec command: Specialized with project-specific structure patterns, testing approaches, and test strategies
 - Abstract placeholders: Replaced with project-specific content
-- Commands written to: agent-os/commands/shape-spec/ and agent-os/commands/write-spec/
+- Commands written to: geist/commands/shape-spec/ and geist/commands/write-spec/
 
 Specialized commands are ready to use immediately.
 
@@ -325,14 +325,14 @@ specialize_basepoints_extraction_workflows() {
     local merged_knowledge="$2"
     
     # Load project-specific extraction patterns from cache
-    if [ -f "agent-os/output/deploy-agents/knowledge/basepoint-file-pattern.txt" ]; then
-        BASEPOINT_FILE_PATTERN=$(cat agent-os/output/deploy-agents/knowledge/basepoint-file-pattern.txt)
+    if [ -f "geist/output/deploy-agents/knowledge/basepoint-file-pattern.txt" ]; then
+        BASEPOINT_FILE_PATTERN=$(cat geist/output/deploy-agents/knowledge/basepoint-file-pattern.txt)
     else
         BASEPOINT_FILE_PATTERN="agent-base-*.md"
     fi
     
     # Replace {{BASEPOINTS_PATH}} with actual path
-    content=$(echo "$content" | sed "s|{{BASEPOINTS_PATH}}|agent-os/basepoints|g")
+    content=$(echo "$content" | sed "s|{{BASEPOINTS_PATH}}|geist/basepoints|g")
     
     # Replace {{BASEPOINT_FILE_PATTERN}} with project-specific pattern
     content=$(echo "$content" | sed "s|{{BASEPOINT_FILE_PATTERN}}|$BASEPOINT_FILE_PATTERN|g")
@@ -415,6 +415,6 @@ specialize_deep_reading_workflows() {
 - **Must specialize basepoints knowledge extraction workflows**: Replace {{BASEPOINTS_PATH}}, {{BASEPOINT_FILE_PATTERN}}, and extraction placeholders with project-specific patterns
 - **Must specialize scope detection workflows**: Replace keyword extraction, semantic analysis, and layer detection placeholders with project-specific patterns
 - **Must specialize deep reading workflows**: Replace code file patterns, module path detection, and pattern extraction placeholders with project-specific patterns
-- Must write specialized commands to agent-os/commands/ (replace abstract versions)
+- Must write specialized commands to geist/commands/ (replace abstract versions)
 - Specialized commands must be ready to use immediately (no further processing needed)
 - Must preserve command structure and phase organization while injecting project-specific knowledge

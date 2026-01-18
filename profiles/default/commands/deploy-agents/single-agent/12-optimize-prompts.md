@@ -17,8 +17,8 @@ Now that the project is analyzed and specialized, enhance all command templates 
 echo "📋 Loading project context for context section generation..."
 
 # Load from basepoints
-HEADQUARTER=$(cat agent-os/basepoints/headquarter.md 2>/dev/null || echo "")
-PROJECT_PROFILE=$(cat agent-os/config/project-profile.yml 2>/dev/null || echo "")
+HEADQUARTER=$(cat geist/basepoints/headquarter.md 2>/dev/null || echo "")
+PROJECT_PROFILE=$(cat geist/config/project-profile.yml 2>/dev/null || echo "")
 
 # Extract key information
 TECH_STACK=$(echo "$PROJECT_PROFILE" | grep -E "language:|primary_language:" | cut -d: -f2 | tr -d ' ' | head -1)
@@ -40,12 +40,12 @@ echo "   Architecture: $ARCHITECTURE"
 PATTERNS_SUCCESS=""
 PATTERNS_FAILED=""
 
-if [ -f "agent-os/output/session-feedback/patterns/successful.md" ]; then
-    PATTERNS_SUCCESS=$(cat agent-os/output/session-feedback/patterns/successful.md | grep -E "^\s*-\s*✅" | head -3 | sed 's/^/  /')
+if [ -f "geist/output/session-feedback/patterns/successful.md" ]; then
+    PATTERNS_SUCCESS=$(cat geist/output/session-feedback/patterns/successful.md | grep -E "^\s*-\s*✅" | head -3 | sed 's/^/  /')
 fi
 
-if [ -f "agent-os/output/session-feedback/patterns/failed.md" ]; then
-    PATTERNS_FAILED=$(cat agent-os/output/session-feedback/patterns/failed.md | grep -E "^\s*-\s*❌" | head -3 | sed 's/^/  /')
+if [ -f "geist/output/session-feedback/patterns/failed.md" ]; then
+    PATTERNS_FAILED=$(cat geist/output/session-feedback/patterns/failed.md | grep -E "^\s*-\s*❌" | head -3 | sed 's/^/  /')
 fi
 
 echo "   Loaded session learnings (if available)"
@@ -68,7 +68,7 @@ COMMANDS_TO_ENHANCE=(
 CONTEXT_SECTIONS=""
 
 for CMD_PATH in "${COMMANDS_TO_ENHANCE[@]}"; do
-    CMD_FILE="agent-os/commands/$CMD_PATH"
+    CMD_FILE="geist/commands/$CMD_PATH"
     
     if [ ! -f "$CMD_FILE" ]; then
         continue
@@ -94,7 +94,7 @@ $PATTERNS_SUCCESS
 $PATTERNS_FAILED
 
 ### Previous Handoff
-[Will be loaded from agent-os/output/handoff/current.md at runtime if exists]
+[Will be loaded from geist/output/handoff/current.md at runtime if exists]
 
 ---
 
@@ -152,9 +152,9 @@ Wait for user response before proceeding.
 
 ## Output
 
-Save context sections to: `agent-os/output/deploy-agents/cache/context-sections.md`
+Save context sections to: `geist/output/deploy-agents/cache/context-sections.md`
 
-If user selects "Skip", save context sections for later review in `agent-os/output/deploy-agents/cache/context-sections-pending.md`.
+If user selects "Skip", save context sections for later review in `geist/output/deploy-agents/cache/context-sections-pending.md`.
 
 ## Next Step
 

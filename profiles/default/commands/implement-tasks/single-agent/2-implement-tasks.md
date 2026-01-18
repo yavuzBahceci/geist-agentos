@@ -5,7 +5,7 @@ Now that you have the task group(s) to be implemented, proceed with implementati
 First, load any accumulated knowledge from previous commands (shape-spec, write-spec, create-tasks):
 
 ```bash
-SPEC_PATH="agent-os/specs/[current-spec]"
+SPEC_PATH="geist/specs/[current-spec]"
 CACHE_PATH="$SPEC_PATH/implementation/cache"
 
 # Load accumulated knowledge from previous commands
@@ -44,11 +44,11 @@ echo "📝 Creating comprehensive implementation prompt..."
 
 # Load product knowledge
 PRODUCT_KNOWLEDGE=""
-if [ -f "agent-os/product/mission.md" ]; then
-    PRODUCT_KNOWLEDGE="${PRODUCT_KNOWLEDGE}\n## Mission\n$(cat agent-os/product/mission.md)"
+if [ -f "geist/product/mission.md" ]; then
+    PRODUCT_KNOWLEDGE="${PRODUCT_KNOWLEDGE}\n## Mission\n$(cat geist/product/mission.md)"
 fi
-if [ -f "agent-os/product/tech-stack.md" ]; then
-    PRODUCT_KNOWLEDGE="${PRODUCT_KNOWLEDGE}\n## Tech Stack\n$(cat agent-os/product/tech-stack.md)"
+if [ -f "geist/product/tech-stack.md" ]; then
+    PRODUCT_KNOWLEDGE="${PRODUCT_KNOWLEDGE}\n## Tech Stack\n$(cat geist/product/tech-stack.md)"
 fi
 
 # Create comprehensive implementation prompt
@@ -184,7 +184,7 @@ Display a summary of what was implemented.
 IF all tasks are now marked as done (with `- [x]`) in tasks.md, display this message to user:
 
 ```
-All tasks have been implemented: `agent-os/specs/[this-spec]/tasks.md`.
+All tasks have been implemented: `geist/specs/[this-spec]/tasks.md`.
 
 NEXT STEP 👉 Run `3-verify-implementation.md` to verify the implementation.
 ```
@@ -202,7 +202,7 @@ If not, please specify which task group(s) to implement next.
 After each task group is implemented, run validation:
 
 ```bash
-SPEC_PATH="agent-os/specs/[current-spec]"
+SPEC_PATH="geist/specs/[current-spec]"
 COMMAND="implement-tasks"
 {{workflows/validation/validate-output-exists}}
 {{workflows/validation/validate-knowledge-integration}}

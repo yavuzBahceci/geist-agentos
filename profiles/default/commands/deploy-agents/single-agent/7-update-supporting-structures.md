@@ -2,9 +2,9 @@ Now that all five core commands are specialized, proceed with updating supportin
 
 ## Core Responsibilities
 
-1. **Create or Update Standards**: Create new standards and update existing ones in agent-os/standards/ based on project-specific patterns from basepoints
-2. **Create or Merge Workflows**: Create new workflows or merge existing ones in agent-os/workflows/ based on project structure requirements
-3. **Create or Update Agents**: Create new agents or update existing ones in agent-os/agents/ based on project-specific needs and patterns
+1. **Create or Update Standards**: Create new standards and update existing ones in geist/standards/ based on project-specific patterns from basepoints
+2. **Create or Merge Workflows**: Create new workflows or merge existing ones in geist/workflows/ based on project structure requirements
+3. **Create or Update Agents**: Create new agents or update existing ones in geist/agents/ based on project-specific needs and patterns
 4. **Verify References**: Ensure specialized commands reference updated standards, workflows, and agents correctly
 
 ## Workflow
@@ -15,25 +15,25 @@ Load merged knowledge from previous phases:
 
 ```bash
 # Load merged knowledge from cache
-if [ -f "agent-os/output/deploy-agents/knowledge/merged-knowledge.json" ]; then
-    MERGED_KNOWLEDGE=$(cat agent-os/output/deploy-agents/knowledge/merged-knowledge.json)
+if [ -f "geist/output/deploy-agents/knowledge/merged-knowledge.json" ]; then
+    MERGED_KNOWLEDGE=$(cat geist/output/deploy-agents/knowledge/merged-knowledge.json)
     echo "✅ Loaded merged knowledge"
 fi
 
 # Load basepoints knowledge for standards extraction
-if [ -f "agent-os/output/deploy-agents/knowledge/basepoints-knowledge.json" ]; then
-    BASEPOINTS_KNOWLEDGE=$(cat agent-os/output/deploy-agents/knowledge/basepoints-knowledge.json)
+if [ -f "geist/output/deploy-agents/knowledge/basepoints-knowledge.json" ]; then
+    BASEPOINTS_KNOWLEDGE=$(cat geist/output/deploy-agents/knowledge/basepoints-knowledge.json)
 fi
 ```
 
-### Step 2: Create or Update Standards in agent-os/standards/
+### Step 2: Create or Update Standards in geist/standards/
 
 Create new standards or update existing ones based on project-specific patterns:
 
 ```bash
-# Ensure agent-os/standards/ directories exist
-mkdir -p agent-os/standards/global
-mkdir -p agent-os/standards
+# Ensure geist/standards/ directories exist
+mkdir -p geist/standards/global
+mkdir -p geist/standards
 
 # Extract project-specific standards patterns from merged knowledge
 PROJECT_STANDARDS=$(extract_standards_from_merged "$MERGED_KNOWLEDGE")
@@ -50,13 +50,13 @@ for standard_type in naming coding-style structure conventions error-handling; d
         SPECIALIZED_STANDARD=$(merge_standard_pattern "$STANDARD_PATTERN" "$STANDARD_CONTENT" "$MERGED_KNOWLEDGE")
         
         # Write specialized standard
-        echo "$SPECIALIZED_STANDARD" > "agent-os/standards/global/${standard_type}.md"
-        echo "✅ Created/updated standard: agent-os/standards/global/${standard_type}.md"
+        echo "$SPECIALIZED_STANDARD" > "geist/standards/global/${standard_type}.md"
+        echo "✅ Created/updated standard: geist/standards/global/${standard_type}.md"
     else
         # Create new standard if pattern doesn't exist
         NEW_STANDARD=$(create_new_standard "$STANDARD_CONTENT" "$standard_type" "$MERGED_KNOWLEDGE")
-        echo "$NEW_STANDARD" > "agent-os/standards/global/${standard_type}.md"
-        echo "✅ Created new standard: agent-os/standards/global/${standard_type}.md"
+        echo "$NEW_STANDARD" > "geist/standards/global/${standard_type}.md"
+        echo "✅ Created new standard: geist/standards/global/${standard_type}.md"
     fi
 done
 
@@ -68,9 +68,9 @@ for project_standard in $PROJECT_SPECIFIC_STANDARDS; do
     STANDARD_CONTENT=$(echo "$project_standard" | cut -d':' -f2-)
     
     # Determine appropriate directory (global/ or project-specific/)
-    STANDARD_DIR="agent-os/standards"
+    STANDARD_DIR="geist/standards"
     if [[ "$STANDARD_NAME" =~ ^(global|framework|library)- ]]; then
-        STANDARD_DIR="agent-os/standards/global"
+        STANDARD_DIR="geist/standards/global"
     fi
     
     echo "$STANDARD_CONTENT" > "${STANDARD_DIR}/${STANDARD_NAME}.md"
@@ -85,22 +85,22 @@ Create or update standards:
   - Create standards for project-specific frameworks, libraries, or technologies
   - Include project-specific conventions and patterns
 
-- **Update Existing Standards**: Update existing standards in agent-os/standards/ with project-specific conventions
+- **Update Existing Standards**: Update existing standards in geist/standards/ with project-specific conventions
   - Merge project-specific patterns into standard templates
   - Update naming conventions based on basepoints
   - Update coding styles based on project patterns
   - Update structure standards based on project organization
 
-### Step 3: Create or Merge Workflows in agent-os/workflows/
+### Step 3: Create or Merge Workflows in geist/workflows/
 
 Create new workflows or merge existing ones based on project structure:
 
 ```bash
-# Ensure agent-os/workflows/ directories exist
-mkdir -p agent-os/workflows/specification
-mkdir -p agent-os/workflows/implementation
-mkdir -p agent-os/workflows/planning
-mkdir -p agent-os/workflows/codebase-analysis
+# Ensure geist/workflows/ directories exist
+mkdir -p geist/workflows/specification
+mkdir -p geist/workflows/implementation
+mkdir -p geist/workflows/planning
+mkdir -p geist/workflows/codebase-analysis
 
 # Extract project-specific workflow patterns from merged knowledge
 PROJECT_WORKFLOWS=$(extract_workflows_from_merged "$MERGED_KNOWLEDGE")
@@ -124,13 +124,13 @@ for workflow_category in specification implementation planning codebase-analysis
             if needs_workflow_merge "$workflow_path" "$BASEPOINTS_KNOWLEDGE"; then
                 # Merge workflows based on multiple basepoint patterns
                 MERGED_WORKFLOWS=$(merge_workflows "$ABSTRACT_WORKFLOW" "$BASEPOINTS_KNOWLEDGE" "$workflow_path")
-                echo "$MERGED_WORKFLOWS" > "agent-os/workflows/${workflow_path}"
-                echo "✅ Merged workflow: agent-os/workflows/${workflow_path}"
+                echo "$MERGED_WORKFLOWS" > "geist/workflows/${workflow_path}"
+                echo "✅ Merged workflow: geist/workflows/${workflow_path}"
             else
                 # Specialize workflow with project-specific patterns
                 SPECIALIZED_WORKFLOW=$(specialize_workflow "$ABSTRACT_WORKFLOW" "$MERGED_KNOWLEDGE" "$workflow_path")
-                echo "$SPECIALIZED_WORKFLOW" > "agent-os/workflows/${workflow_path}"
-                echo "✅ Specialized workflow: agent-os/workflows/${workflow_path}"
+                echo "$SPECIALIZED_WORKFLOW" > "geist/workflows/${workflow_path}"
+                echo "✅ Specialized workflow: geist/workflows/${workflow_path}"
             fi
         else
             # Create new workflow if project structure requires specialized workflow
@@ -138,11 +138,11 @@ for workflow_category in specification implementation planning codebase-analysis
                 NEW_WORKFLOW=$(create_new_workflow "$workflow_path" "$MERGED_KNOWLEDGE" "$BASEPOINTS_KNOWLEDGE")
                 
                 # Create directory if needed
-                WORKFLOW_DIR=$(dirname "agent-os/workflows/${workflow_path}")
+                WORKFLOW_DIR=$(dirname "geist/workflows/${workflow_path}")
                 mkdir -p "$WORKFLOW_DIR"
                 
-                echo "$NEW_WORKFLOW" > "agent-os/workflows/${workflow_path}"
-                echo "✅ Created new workflow: agent-os/workflows/${workflow_path}"
+                echo "$NEW_WORKFLOW" > "geist/workflows/${workflow_path}"
+                echo "✅ Created new workflow: geist/workflows/${workflow_path}"
             fi
         fi
     done
@@ -166,13 +166,13 @@ Create or merge workflows:
   - Replace abstract placeholders with project-specific content
   - Include project-specific examples and patterns
 
-### Step 4: Create or Update Agents in agent-os/agents/
+### Step 4: Create or Update Agents in geist/agents/
 
 Create new agents or update existing ones based on project-specific needs:
 
 ```bash
-# Ensure agent-os/agents/ directory exists
-mkdir -p agent-os/agents
+# Ensure geist/agents/ directory exists
+mkdir -p geist/agents
 
 # Extract project-specific agent patterns from merged knowledge
 PROJECT_AGENTS=$(extract_agents_from_merged "$MERGED_KNOWLEDGE")
@@ -191,12 +191,12 @@ for agent_file in profiles/default/agents/*.md; do
         if needs_agent_update "$AGENT_NAME" "$PROJECT_NEEDS"; then
             # Update agent with project-specific knowledge
             SPECIALIZED_AGENT=$(specialize_agent "$ABSTRACT_AGENT" "$MERGED_KNOWLEDGE" "$AGENT_NAME")
-            echo "$SPECIALIZED_AGENT" > "agent-os/agents/${AGENT_NAME}.md"
-            echo "✅ Updated agent: agent-os/agents/${AGENT_NAME}.md"
+            echo "$SPECIALIZED_AGENT" > "geist/agents/${AGENT_NAME}.md"
+            echo "✅ Updated agent: geist/agents/${AGENT_NAME}.md"
         else
             # Copy agent as-is if no specialization needed
-            cp "$agent_file" "agent-os/agents/${AGENT_NAME}.md"
-            echo "✅ Copied agent: agent-os/agents/${AGENT_NAME}.md"
+            cp "$agent_file" "geist/agents/${AGENT_NAME}.md"
+            echo "✅ Copied agent: geist/agents/${AGENT_NAME}.md"
         fi
     fi
 done
@@ -209,8 +209,8 @@ for new_agent in $NEW_AGENTS; do
     
     # Create new agent following agent patterns from profiles/default/agents/
     NEW_AGENT_CONTENT=$(create_new_agent "$AGENT_NAME" "$AGENT_PATTERNS" "$MERGED_KNOWLEDGE")
-    echo "$NEW_AGENT_CONTENT" > "agent-os/agents/${AGENT_NAME}.md"
-    echo "✅ Created new agent: agent-os/agents/${AGENT_NAME}.md"
+    echo "$NEW_AGENT_CONTENT" > "geist/agents/${AGENT_NAME}.md"
+    echo "✅ Created new agent: geist/agents/${AGENT_NAME}.md"
 done
 ```
 
@@ -233,11 +233,11 @@ Verify that specialized commands reference updated standards, workflows, and age
 ```bash
 # Check all specialized commands for correct references
 SPECIALIZED_COMMANDS=(
-    "agent-os/commands/shape-spec/shape-spec.md"
-    "agent-os/commands/write-spec/write-spec.md"
-    "agent-os/commands/create-tasks/create-tasks.md"
-    "agent-os/commands/implement-tasks/implement-tasks.md"
-    "agent-os/commands/orchestrate-tasks/orchestrate-tasks.md"
+    "geist/commands/shape-spec/shape-spec.md"
+    "geist/commands/write-spec/write-spec.md"
+    "geist/commands/create-tasks/create-tasks.md"
+    "geist/commands/implement-tasks/implement-tasks.md"
+    "geist/commands/orchestrate-tasks/orchestrate-tasks.md"
 )
 
 # Verify standards references
@@ -245,23 +245,23 @@ echo "🔍 Verifying standards references..."
 for cmd_file in "${SPECIALIZED_COMMANDS[@]}"; do
     if [ -f "$cmd_file" ]; then
         # Check for standards references
-        STANDARDS_REFS=$(grep -o '@agent-os/standards/[^}]*' "$cmd_file" || grep -o '{{standards/[^}]*}}' "$cmd_file" || true)
+        STANDARDS_REFS=$(grep -o '@geist/standards/[^}]*' "$cmd_file" || grep -o '{{standards/[^}]*}}' "$cmd_file" || true)
         
         for ref in $STANDARDS_REFS; do
-            # Clean reference (remove @agent-os/ or {{}})
-            CLEAN_REF=$(echo "$ref" | sed 's|@agent-os/standards/||' | sed 's|{{standards/||' | sed 's|}}||')
+            # Clean reference (remove @geist/ or {{}})
+            CLEAN_REF=$(echo "$ref" | sed 's|@geist/standards/||' | sed 's|{{standards/||' | sed 's|}}||')
             
             # Check if standard file exists
             if [[ "$CLEAN_REF" == *"/*" ]]; then
                 # Wildcard reference - check if directory exists
                 STANDARD_DIR=$(echo "$CLEAN_REF" | sed 's|/*||')
-                if [ ! -d "agent-os/standards/${STANDARD_DIR}" ]; then
-                    echo "⚠️  Warning: Standards directory not found: agent-os/standards/${STANDARD_DIR} (referenced in $cmd_file)"
+                if [ ! -d "geist/standards/${STANDARD_DIR}" ]; then
+                    echo "⚠️  Warning: Standards directory not found: geist/standards/${STANDARD_DIR} (referenced in $cmd_file)"
                 fi
             else
                 # Specific file reference
-                if [ ! -f "agent-os/standards/${CLEAN_REF}.md" ] && [ ! -f "agent-os/standards/${CLEAN_REF}" ]; then
-                    echo "⚠️  Warning: Standard file not found: agent-os/standards/${CLEAN_REF} (referenced in $cmd_file)"
+                if [ ! -f "geist/standards/${CLEAN_REF}.md" ] && [ ! -f "geist/standards/${CLEAN_REF}" ]; then
+                    echo "⚠️  Warning: Standard file not found: geist/standards/${CLEAN_REF} (referenced in $cmd_file)"
                 fi
             fi
         done
@@ -273,15 +273,15 @@ echo "🔍 Verifying workflows references..."
 for cmd_file in "${SPECIALIZED_COMMANDS[@]}"; do
     if [ -f "$cmd_file" ]; then
         # Check for workflow references
-        WORKFLOW_REFS=$(grep -o '@agent-os/workflows/[^}]*' "$cmd_file" || grep -o '{{workflows/[^}]*}}' "$cmd_file" || true)
+        WORKFLOW_REFS=$(grep -o '@geist/workflows/[^}]*' "$cmd_file" || grep -o '{{workflows/[^}]*}}' "$cmd_file" || true)
         
         for ref in $WORKFLOW_REFS; do
-            # Clean reference (remove @agent-os/ or {{}})
-            CLEAN_REF=$(echo "$ref" | sed 's|@agent-os/workflows/||' | sed 's|{{workflows/||' | sed 's|}}||' | sed 's|\.md||')
+            # Clean reference (remove @geist/ or {{}})
+            CLEAN_REF=$(echo "$ref" | sed 's|@geist/workflows/||' | sed 's|{{workflows/||' | sed 's|}}||' | sed 's|\.md||')
             
             # Check if workflow file exists
-            if [ ! -f "agent-os/workflows/${CLEAN_REF}.md" ]; then
-                echo "⚠️  Warning: Workflow file not found: agent-os/workflows/${CLEAN_REF}.md (referenced in $cmd_file)"
+            if [ ! -f "geist/workflows/${CLEAN_REF}.md" ]; then
+                echo "⚠️  Warning: Workflow file not found: geist/workflows/${CLEAN_REF}.md (referenced in $cmd_file)"
             fi
         done
     fi
@@ -292,15 +292,15 @@ echo "🔍 Verifying agents references..."
 for cmd_file in "${SPECIALIZED_COMMANDS[@]}"; do
     if [ -f "$cmd_file" ]; then
         # Check for agent references
-        AGENT_REFS=$(grep -o '@agent-os/agents/[^}]*' "$cmd_file" || grep -o '{{agents/[^}]*}}' "$cmd_file" || true)
+        AGENT_REFS=$(grep -o '@geist/agents/[^}]*' "$cmd_file" || grep -o '{{agents/[^}]*}}' "$cmd_file" || true)
         
         for ref in $AGENT_REFS; do
-            # Clean reference (remove @agent-os/ or {{}})
-            CLEAN_REF=$(echo "$ref" | sed 's|@agent-os/agents/||' | sed 's|{{agents/||' | sed 's|}}||' | sed 's|\.md||')
+            # Clean reference (remove @geist/ or {{}})
+            CLEAN_REF=$(echo "$ref" | sed 's|@geist/agents/||' | sed 's|{{agents/||' | sed 's|}}||' | sed 's|\.md||')
             
             # Check if agent file exists
-            if [ ! -f "agent-os/agents/${CLEAN_REF}.md" ]; then
-                echo "⚠️  Warning: Agent file not found: agent-os/agents/${CLEAN_REF}.md (referenced in $cmd_file)"
+            if [ ! -f "geist/agents/${CLEAN_REF}.md" ]; then
+                echo "⚠️  Warning: Agent file not found: geist/agents/${CLEAN_REF}.md (referenced in $cmd_file)"
             fi
         done
     fi
@@ -311,18 +311,18 @@ echo "✅ Reference verification complete"
 
 Verify references:
 - **Standards References**: Ensure specialized commands reference updated standards correctly
-  - Check all `@agent-os/standards/...` and `{{standards/...}}` references
-  - Verify referenced standard files exist in agent-os/standards/
+  - Check all `@geist/standards/...` and `{{standards/...}}` references
+  - Verify referenced standard files exist in geist/standards/
   - Report missing or incorrect references
 
 - **Workflows References**: Ensure specialized commands reference updated workflows correctly
-  - Check all `@agent-os/workflows/...` and `{{workflows/...}}` references
-  - Verify referenced workflow files exist in agent-os/workflows/
+  - Check all `@geist/workflows/...` and `{{workflows/...}}` references
+  - Verify referenced workflow files exist in geist/workflows/
   - Report missing or incorrect references
 
 - **Agents References**: Ensure specialized commands reference updated agents correctly
-  - Check all `@agent-os/agents/...` and `{{agents/...}}` references
-  - Verify referenced agent files exist in agent-os/agents/
+  - Check all `@geist/agents/...` and `{{agents/...}}` references
+  - Verify referenced agent files exist in geist/agents/
   - Report missing or incorrect references
 
 {{UNLESS compiled_single_command}}

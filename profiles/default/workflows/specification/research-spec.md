@@ -380,7 +380,7 @@ This workflow has been enhanced with Spec-Driven Development (SDD) best practice
 - All SDD framework references are abstract (e.g., "task decomposition frameworks" not technology-specific tools)
 - No hardcoded technology-specific SDD tool references in default templates
 - Questions maintain technology-agnostic state throughout **in default profile templates**
-- **After Specialization:** When templates are compiled to `agent-os/workflows/`, workflows can and should become technology-specific based on the project's actual stack
+- **After Specialization:** When templates are compiled to `geist/workflows/`, workflows can and should become technology-specific based on the project's actual stack
 - **Command Outputs:** Specs, tasks, and implementations should reflect the project's actual technology stack
 
 **Conditional SDD Checkpoints:**

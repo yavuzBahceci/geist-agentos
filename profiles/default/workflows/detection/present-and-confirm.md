@@ -21,7 +21,7 @@ Expects these variables to be set (from prior detection workflows):
 
 ## Outputs
 
-- Updates `agent-os/config/project-profile.yml` with confirmed values
+- Updates `geist/config/project-profile.yml` with confirmed values
 - Sets `USER_CONFIRMED=true` when user accepts
 
 ---
@@ -188,7 +188,7 @@ esac
 
 ```bash
 # Update the profile with user-specified values
-cat > agent-os/config/project-profile.yml << CONFIRMED_EOF
+cat > geist/config/project-profile.yml << CONFIRMED_EOF
 # Project Profile
 # Auto-detected and confirmed by user
 # Generated: $(date -Iseconds)
@@ -229,7 +229,7 @@ _meta:
 CONFIRMED_EOF
 
 echo ""
-echo "✅ Profile saved to: agent-os/config/project-profile.yml"
+echo "✅ Profile saved to: geist/config/project-profile.yml"
 echo ""
 ```
 
@@ -252,7 +252,7 @@ echo "  • Validation command configuration"
 echo "  • Workflow complexity selection"
 echo ""
 echo "You can modify the profile at any time by editing:"
-echo "  agent-os/config/project-profile.yml"
+echo "  geist/config/project-profile.yml"
 echo ""
 echo "═══════════════════════════════════════════════════════════════════════════"
 ```

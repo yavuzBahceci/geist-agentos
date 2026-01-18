@@ -16,14 +16,14 @@ Load knowledge from previous phases:
 
 ```bash
 # Load basepoints knowledge from cache
-if [ -f "agent-os/output/deploy-agents/knowledge/basepoints-knowledge.json" ]; then
-    BASEPOINTS_KNOWLEDGE=$(cat agent-os/output/deploy-agents/knowledge/basepoints-knowledge.json)
+if [ -f "geist/output/deploy-agents/knowledge/basepoints-knowledge.json" ]; then
+    BASEPOINTS_KNOWLEDGE=$(cat geist/output/deploy-agents/knowledge/basepoints-knowledge.json)
     echo "✅ Loaded basepoints knowledge"
 fi
 
 # Load product knowledge from cache
-if [ -f "agent-os/output/deploy-agents/knowledge/product-knowledge.json" ]; then
-    PRODUCT_KNOWLEDGE=$(cat agent-os/output/deploy-agents/knowledge/product-knowledge.json)
+if [ -f "geist/output/deploy-agents/knowledge/product-knowledge.json" ]; then
+    PRODUCT_KNOWLEDGE=$(cat geist/output/deploy-agents/knowledge/product-knowledge.json)
     echo "✅ Loaded product knowledge"
 fi
 
@@ -157,7 +157,7 @@ Identify contradictions between knowledge sources:
 CONFLICTS_BASEPOINTS_PRODUCT=""
 
 # Check for conflicting patterns
-if [ -f "agent-os/output/deploy-agents/knowledge/basepoints-knowledge.json" ] && [ -f "agent-os/output/deploy-agents/knowledge/product-knowledge.json" ]; then
+if [ -f "geist/output/deploy-agents/knowledge/basepoints-knowledge.json" ] && [ -f "geist/output/deploy-agents/knowledge/product-knowledge.json" ]; then
     # Compare patterns from basepoints vs product tech-stack
     # Example: Basepoints says "use Repository pattern" but product tech-stack suggests different pattern
     # Detect contradictions in naming conventions, coding styles, structural patterns
@@ -324,11 +324,11 @@ MERGED_KNOWLEDGE="{
 }"
 
 # Store in cache for command transformation
-mkdir -p agent-os/output/deploy-agents/knowledge
-echo "$MERGED_KNOWLEDGE" > agent-os/output/deploy-agents/knowledge/merged-knowledge.json
+mkdir -p geist/output/deploy-agents/knowledge
+echo "$MERGED_KNOWLEDGE" > geist/output/deploy-agents/knowledge/merged-knowledge.json
 
 # Create markdown summary
-cat > agent-os/output/deploy-agents/knowledge/merged-knowledge-summary.md << 'EOF'
+cat > geist/output/deploy-agents/knowledge/merged-knowledge-summary.md << 'EOF'
 # Merged Knowledge for Command Specialization
 
 ## Patterns (Merged)
@@ -360,7 +360,7 @@ EOF
 # Organize merged knowledge by command type (shape-spec, write-spec, create-tasks, implement-tasks, orchestrate-tasks)
 for cmd in shape-spec write-spec create-tasks implement-tasks orchestrate-tasks; do
     CMD_SPECIFIC_KNOWLEDGE=$(extract_knowledge_for_command "$MERGED_KNOWLEDGE" "$cmd")
-    echo "$CMD_SPECIFIC_KNOWLEDGE" > "agent-os/output/deploy-agents/knowledge/${cmd}-knowledge.json"
+    echo "$CMD_SPECIFIC_KNOWLEDGE" > "geist/output/deploy-agents/knowledge/${cmd}-knowledge.json"
 done
 ```
 
