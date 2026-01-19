@@ -1,5 +1,18 @@
 # Spec Research
 
+---
+
+## ⚠️ CRITICAL: USER INTERACTION REQUIRED
+
+**This workflow requires multiple rounds of user interaction.** You MUST:
+1. Ask clarifying questions and **STOP and WAIT** for user responses
+2. Process answers and check for visual assets
+3. Ask follow-up questions if needed and **STOP and WAIT** for responses
+4. Do NOT proceed to the next step until you receive user input
+5. Do NOT assume answers or skip questions
+
+---
+
 ## Core Responsibilities
 
 1. **Read Initial Idea**: Load the raw idea from initialization.md

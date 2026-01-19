@@ -141,12 +141,17 @@ Available specialists:
 - test-specialist (Testing layer)
 - implementer (Generic, cross-layer tasks)
 
+**Note:** For cross-layer tasks, you can assign MULTIPLE specialists (e.g., "ui-specialist, api-specialist").
+The implementing agent will receive combined context from all assigned specialists.
+
 Would you like to:
 1. Accept these suggestions
 2. Modify some assignments (specify which)
 3. Assign manually for all task groups
 
-Reply with your choice (1/2/3) or specify modifications like "2: change api-specialist, 4: change ui-specialist"
+Reply with your choice (1/2/3) or specify modifications like:
+- "2: add api-specialist" (adds to existing)
+- "4: ui-specialist, data-specialist" (replaces with multiple)
 ```
 
 Using the user's responses, update `orchestration.yml` to specify the agent names. The file should look like:
@@ -154,11 +159,11 @@ Using the user's responses, update `orchestration.yml` to specify the agent name
 ```yaml
 task_groups:
   - name: [task-group-name]
-    claude_code_subagent: [specialist-name]
-    detected_layer: [layer]  # For reference
+    specialists: [specialist-name]  # Single specialist
+    detected_layers: [layer]
   - name: [task-group-name]
-    claude_code_subagent: [specialist-name]
-    detected_layer: [layer]
+    specialists: [specialist-1, specialist-2]  # Multiple specialists for cross-layer tasks
+    detected_layers: [layer1, layer2]
   # Repeat for each task group
 ```
 
@@ -167,18 +172,23 @@ For example, after this step with layer detection:
 ```yaml
 task_groups:
   - name: user-profile-ui
-    claude_code_subagent: ui-specialist
-    detected_layer: ui
+    specialists: [ui-specialist]
+    detected_layers: [ui]
   - name: profile-api-endpoints
-    claude_code_subagent: api-specialist
-    detected_layer: api
+    specialists: [api-specialist]
+    detected_layers: [api]
   - name: user-data-model
-    claude_code_subagent: data-specialist
-    detected_layer: data
+    specialists: [data-specialist]
+    detected_layers: [data]
+  - name: user-dashboard-feature
+    specialists: [ui-specialist, api-specialist]  # Cross-layer: needs both
+    detected_layers: [ui, api]
   - name: cross-layer-integration
-    claude_code_subagent: implementer
-    detected_layer: mixed
+    specialists: [implementer]  # Fallback for complex cross-layer
+    detected_layers: [mixed]
 ```
+
+**Multiple Specialists:** When a task group spans multiple layers, assign multiple specialists. The implementing agent will receive context from ALL assigned specialists to ensure comprehensive knowledge.
 
 ### FALLBACK: Manual assignment if no specialists
 

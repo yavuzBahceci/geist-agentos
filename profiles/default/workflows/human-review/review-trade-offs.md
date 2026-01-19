@@ -1,5 +1,18 @@
 # Human Review for Trade-offs
 
+---
+
+## ⚠️ NOTE: This workflow may require user interaction
+
+If trade-offs or contradictions are detected, this workflow will:
+1. Present all issues to the user
+2. **STOP and WAIT** for the user to make decisions
+3. Log the user's decisions for future reference
+
+If no issues are detected, the workflow proceeds automatically.
+
+---
+
 ## Core Responsibilities
 
 1. **Orchestrate Trade-off Detection**: Trigger detection workflows for trade-offs and contradictions

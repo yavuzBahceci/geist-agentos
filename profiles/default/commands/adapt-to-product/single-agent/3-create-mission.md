@@ -1,6 +1,18 @@
 Now that you've gathered information from all sources and analyzed the codebase, use that unified product knowledge to create the mission document in `geist/product/mission.md` by following these instructions:
 
-{{workflows/planning/create-product-mission}}
+**Read and follow the workflow instructions in:** `@geist/workflows/planning/create-product-mission.md`
+
+---
+
+### ⚠️ CHECKPOINT - USER REVIEW RECOMMENDED
+
+After creating the mission document:
+1. Present a summary of the mission to the user
+2. Ask: "Does this mission document accurately capture your product vision?"
+3. **WAIT** for user confirmation or feedback
+4. If the user requests changes, update the document accordingly
+
+---
 
 {{UNLESS compiled_single_command}}
 ## Display confirmation and next step

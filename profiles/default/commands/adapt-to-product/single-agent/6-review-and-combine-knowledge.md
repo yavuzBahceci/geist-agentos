@@ -37,6 +37,19 @@ Document any issues found:
 - Inconsistencies that need resolution
 - Questions that need user clarification
 
+---
+
+### ⚠️ CHECKPOINT - USER INTERACTION REQUIRED (if issues found)
+
+**IF any gaps, inconsistencies, or questions are identified:**
+1. Present all issues clearly to the user
+2. **STOP and WAIT** for the user to provide clarification or resolution
+3. Do NOT proceed until issues are resolved
+
+**IF no issues are found**, you may proceed automatically.
+
+---
+
 ## Step 4: Create Product Summary Report
 
 Create a summary document that combines insights from all product files:

@@ -4,6 +4,16 @@
 
 Format detected values for display, present a confirmation prompt to the user, handle user overrides, and output the final confirmed profile.
 
+---
+
+## ⚠️ CRITICAL: USER INTERACTION REQUIRED
+
+**This workflow requires user confirmation.** You MUST:
+1. Display the detected configuration clearly
+2. **STOP and WAIT** for the user to confirm or request changes
+3. Do NOT proceed until the user explicitly confirms
+4. Do NOT assume the user accepts the defaults
+
 ## Inputs
 
 Expects these variables to be set (from prior detection workflows):

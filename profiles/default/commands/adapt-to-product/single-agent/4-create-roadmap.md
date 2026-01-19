@@ -1,6 +1,18 @@
 Now that you've created this product's mission.md, use that to guide your creation of the roadmap in `geist/product/roadmap.md` by following these instructions:
 
-{{workflows/planning/create-product-roadmap}}
+**Read and follow the workflow instructions in:** `@geist/workflows/planning/create-product-roadmap.md`
+
+---
+
+### ⚠️ CHECKPOINT - USER REVIEW RECOMMENDED
+
+After creating the roadmap document:
+1. Present a summary of the roadmap phases to the user
+2. Ask: "Does this roadmap align with your development priorities?"
+3. **WAIT** for user confirmation or feedback
+4. If the user requests changes, update the document accordingly
+
+---
 
 {{UNLESS compiled_single_command}}
 ## Display confirmation and next step

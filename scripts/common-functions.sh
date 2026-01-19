@@ -64,6 +64,12 @@ print_verbose() {
     fi
 }
 
+# Strip ANSI escape codes from text
+strip_ansi() {
+    local text=$1
+    echo "$text" | sed 's/\x1b\[[0-9;]*m//g'
+}
+
 # -----------------------------------------------------------------------------
 # String Normalization Functions
 # -----------------------------------------------------------------------------
@@ -519,7 +525,8 @@ process_conditionals() {
                     [[ "$compiled_single_command" == "true" ]] && condition_met=true
                     ;;
                 *)
-                    print_warning "Unknown conditional flag: $flag_name"
+                    # Log warning to stderr only (no ANSI codes in file content)
+                    echo "Warning: Unknown conditional flag: $flag_name" >&2
                     ;;
             esac
 
@@ -554,7 +561,8 @@ process_conditionals() {
                     [[ "$compiled_single_command" != "true" ]] && condition_met=true
                     ;;
                 *)
-                    print_warning "Unknown conditional flag: $flag_name"
+                    # Log warning to stderr only (no ANSI codes in file content)
+                    echo "Warning: Unknown conditional flag: $flag_name" >&2
                     ;;
             esac
 
@@ -616,20 +624,22 @@ process_conditionals() {
 
     # Check for unclosed conditionals
     if [[ $nesting_level -ne 0 ]]; then
-        print_warning "Unclosed conditional block detected (nesting level: $nesting_level)"
+        # Log warning to stderr only (no ANSI codes in file content)
+        echo "Warning: Unclosed conditional block detected (nesting level: $nesting_level)" >&2
     fi
 
     echo "$result"
 }
 
-# Process workflow replacements recursively
+# Process workflow references - convert to readable @geist/ references
+# Workflows are installed separately in geist/workflows/ and AI reads them at runtime
 process_workflows() {
     local content=$1
     local base_dir=$2
     local profile=$3
-    local processed_files=$4
+    local processed_files=$4  # Not used anymore, kept for compatibility
 
-    # Process each workflow reference
+    # Find workflow references
     local workflow_refs=$(echo "$content" | grep -o '{{workflows/[^}]*}}' | sort -u)
 
     while IFS= read -r workflow_ref; do
@@ -638,91 +648,50 @@ process_workflows() {
         fi
 
         local workflow_path=$(echo "$workflow_ref" | sed 's/{{workflows\///' | sed 's/}}//')
-
-        # Avoid infinite recursion
-        if [[ " $processed_files " == *" $workflow_path "* ]]; then
-            print_warning "Circular workflow reference detected: $workflow_path"
-            continue
-        fi
-
-        # Get workflow file
         local workflow_file=$(get_profile_file "$profile" "workflows/${workflow_path}.md" "$base_dir")
 
+        # Create the replacement - either a readable reference or a warning
+        local replacement=""
         if [[ -f "$workflow_file" ]]; then
-            local workflow_content=$(cat "$workflow_file")
-
-            # Recursively process nested workflows
-            workflow_content=$(process_workflows "$workflow_content" "$base_dir" "$profile" "$processed_files $workflow_path")
-
-            # Create temp files for safe replacement
-            local temp_content=$(mktemp)
-            local temp_replacement=$(mktemp)
-            echo "$content" > "$temp_content"
-            echo "$workflow_content" > "$temp_replacement"
-
-            # Use perl to do the replacement without escaping newlines
-            content=$(perl -e '
-                use strict;
-                use warnings;
-
-                my $ref = $ARGV[0];
-                my $replacement_file = $ARGV[1];
-                my $content_file = $ARGV[2];
-
-                # Read replacement content
-                open(my $fh, "<", $replacement_file) or die $!;
-                my $replacement = do { local $/; <$fh> };
-                close($fh);
-
-                # Read main content
-                open($fh, "<", $content_file) or die $!;
-                my $content = do { local $/; <$fh> };
-                close($fh);
-
-                # Do the replacement - use quotemeta on entire reference
-                my $pattern = quotemeta($ref);
-                $content =~ s/$pattern/$replacement/g;
-
-                print $content;
-            ' "$workflow_ref" "$temp_replacement" "$temp_content")
-
-            rm -f "$temp_content" "$temp_replacement"
+            # Convert to readable @geist/ reference that AI will understand
+            replacement="**Read and follow the workflow instructions in:** \`@geist/workflows/${workflow_path}.md\`"
         else
-            # Instead of printing warning to stderr, insert it into the content
-            local warning_msg="⚠️ This workflow file was not found in profiles/$profile/workflows/${workflow_path}.md"
-            # Use perl with temp files for safer replacement with special characters
-            local temp_content=$(mktemp)
-            local temp_replacement=$(mktemp)
-            echo "$content" > "$temp_content"
-            printf '%s\n%s' "$workflow_ref" "$warning_msg" > "$temp_replacement"
-
-            content=$(perl -e '
-                use strict;
-                use warnings;
-
-                my $ref = $ARGV[0];
-                my $replacement_file = $ARGV[1];
-                my $content_file = $ARGV[2];
-
-                # Read replacement content
-                open(my $fh, "<", $replacement_file) or die $!;
-                my $replacement = do { local $/; <$fh> };
-                close($fh);
-
-                # Read main content
-                open($fh, "<", $content_file) or die $!;
-                my $content = do { local $/; <$fh> };
-                close($fh);
-
-                # Do the replacement - use quotemeta on entire reference
-                my $pattern = quotemeta($ref);
-                $content =~ s/$pattern/$replacement/g;
-
-                print $content;
-            ' "$workflow_ref" "$temp_replacement" "$temp_content")
-
-            rm -f "$temp_content" "$temp_replacement"
+            # Workflow file not found - replace with plain text warning (no ANSI codes)
+            replacement="<!-- WARNING: Workflow not found: workflows/${workflow_path}.md -->"
+            # Log warning to stderr (not into file content)
+            echo "Warning: Workflow not found: workflows/${workflow_path}.md" >&2
         fi
+        
+        # Use temp files for safe replacement
+        local temp_content=$(mktemp)
+        local temp_replacement=$(mktemp)
+        echo "$content" > "$temp_content"
+        echo "$replacement" > "$temp_replacement"
+
+        content=$(perl -e '
+            use strict;
+            use warnings;
+
+            my $ref = $ARGV[0];
+            my $replacement_file = $ARGV[1];
+            my $content_file = $ARGV[2];
+
+            open(my $fh, "<", $replacement_file) or die $!;
+            my $replacement = do { local $/; <$fh> };
+            close($fh);
+            chomp $replacement;
+
+            open($fh, "<", $content_file) or die $!;
+            my $content = do { local $/; <$fh> };
+            close($fh);
+
+            my $pattern = quotemeta($ref);
+            $content =~ s/$pattern/$replacement/g;
+
+            print $content;
+        ' "$workflow_ref" "$temp_replacement" "$temp_content")
+
+        rm -f "$temp_content" "$temp_replacement"
     done <<< "$workflow_refs"
 
     echo "$content"

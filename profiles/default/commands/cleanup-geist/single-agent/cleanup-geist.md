@@ -13,16 +13,13 @@ You are helping to clean up and fix issues in an already-deployed geist instance
 
 Carefully read and execute the instructions in the following files IN SEQUENCE, following their numbered file names. Only proceed to the next numbered instruction file once the previous numbered instruction has been executed.
 
-Instructions to follow in sequence:
+## Instructions to follow in sequence:
 
-{{PHASE 1: @geist/commands/cleanup-geist/1-validate-prerequisites-and-run-validation.md}}
+**Read and follow each phase file in order:**
 
-{{PHASE 2: @geist/commands/cleanup-geist/2-clean-placeholders.md}}
-
-{{PHASE 3: @geist/commands/cleanup-geist/3-remove-unnecessary-logic.md}}
-
-{{PHASE 4: @geist/commands/cleanup-geist/4-fix-broken-references.md}}
-
-{{PHASE 5: @geist/commands/cleanup-geist/5-verify-knowledge-completeness.md}}
-
-{{PHASE 6: @geist/commands/cleanup-geist/6-generate-cleanup-report.md}}
+1. `@geist/commands/cleanup-geist/1-validate-prerequisites-and-run-validation.md`
+2. `@geist/commands/cleanup-geist/2-clean-placeholders.md`
+3. `@geist/commands/cleanup-geist/3-remove-unnecessary-logic.md`
+4. `@geist/commands/cleanup-geist/4-fix-broken-references.md`
+5. `@geist/commands/cleanup-geist/5-verify-knowledge-completeness.md`
+6. `@geist/commands/cleanup-geist/6-generate-cleanup-report.md`

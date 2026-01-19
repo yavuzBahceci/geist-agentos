@@ -18,7 +18,38 @@ else
 fi
 ```
 
-## Step 2: Extract Comprehensive Knowledge
+## Step 2: Load Specialist Context (if assigned)
+
+Check if specialists were assigned to this task group in orchestration.yml:
+
+```bash
+ORCHESTRATION_FILE="$SPEC_PATH/orchestration.yml"
+SPECIALIST_CONTEXT=""
+
+if [ -f "$ORCHESTRATION_FILE" ]; then
+    # Extract assigned specialists for this task group (supports multiple)
+    ASSIGNED_SPECIALISTS=$(grep -A3 "name: $TASK_GROUP_NAME" "$ORCHESTRATION_FILE" | \
+        grep "specialists:" | \
+        sed 's/.*specialists: \[//' | sed 's/\]//' | tr -d ' ')
+    
+    if [ -n "$ASSIGNED_SPECIALISTS" ]; then
+        echo "✅ Loading specialist context for: $ASSIGNED_SPECIALISTS"
+        
+        # Load context from each assigned specialist
+        IFS=',' read -ra SPECIALISTS_ARRAY <<< "$ASSIGNED_SPECIALISTS"
+        for specialist in "${SPECIALISTS_ARRAY[@]}"; do
+            SPECIALIST_FILE="geist/agents/specialists/${specialist}.md"
+            if [ -f "$SPECIALIST_FILE" ]; then
+                SPECIALIST_CONTENT=$(cat "$SPECIALIST_FILE")
+                SPECIALIST_CONTEXT="${SPECIALIST_CONTEXT}\n\n## Context from ${specialist}\n${SPECIALIST_CONTENT}"
+                echo "   ✅ Loaded: $specialist"
+            fi
+        done
+    fi
+fi
+```
+
+## Step 3: Extract Comprehensive Knowledge
 
 Extract knowledge from all sources to inform implementation:
 
@@ -85,6 +116,9 @@ $PRODUCT_KNOWLEDGE
 
 ## Detected Abstraction Layer
 $DETECTED_LAYER
+
+## Specialist Knowledge (if assigned)
+$SPECIALIST_CONTEXT
 
 ## Implementation Approach Decision
 

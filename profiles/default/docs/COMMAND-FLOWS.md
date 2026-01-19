@@ -290,7 +290,7 @@ Phase 8: Generate Library Basepoints (NEW)
 
 ### 3. deploy-agents
 
-**Purpose**: Transform abstract templates into project-specific implementations.
+**Purpose**: Specialize the installed Geist for this specific project by extracting knowledge and applying it to standards and agents.
 
 **Location**: `commands/deploy-agents/`
 
@@ -299,86 +299,67 @@ Phase 8: Generate Library Basepoints (NEW)
 - Product files (`mission.md`, `roadmap.md`, `tech-stack.md`)
 
 **Outputs**:
-- Specialized commands in `geist/commands/`
-- Specialized workflows in `geist/workflows/`
-- Specialized standards in `geist/standards/`
-- Configured validation commands
-- Deployment report in `geist/output/deploy-agents/`
+- Specialized standards in `geist/standards/` (project-specific patterns)
+- Specialist agents in `geist/agents/specialists/` (layer-specific agents)
+- Specialist registry in `geist/agents/specialists/registry.yml`
+- Knowledge files in `geist/output/deploy-agents/knowledge/`
+- Reports in `geist/output/deploy-agents/reports/`
 - Navigation guidance to `/cleanup-geist`
 
-#### Phases
+#### Phases (Simplified - 7 phases)
 
 ```
-Phase 1: Validate Prerequisites (Enhanced)
-├── Step 0: Load Project Knowledge
-│   ├── Load: project-profile.yml
-│   │   └── Extract: language, framework, security, commands
-│   ├── Load: enriched-knowledge/
-│   │   └── Check: security-notes.md, version-analysis.md
-│   ├── Ask: ONLY if user preferences not set
-│   └── Determine: specialization hints
-│       └── If complexity=complex OR security=high:
-│           RECOMMENDED_WORKFLOW_COMPLEXITY="comprehensive"
-│
-└── Validate: basepoints + product files exist
+Phase 1: Validate Prerequisites
+├── Check: geist directory exists
+├── Check: basepoints exist (headquarter.md + module basepoints)
+├── Check: product files exist (mission.md, roadmap.md, tech-stack.md)
+└── Load: project-profile.yml
 
 Phase 2: Extract Basepoints Knowledge
-└── {{workflows/basepoints/extract-basepoints-knowledge-automatic}}
+├── Read: headquarter.md
+├── Read: all agent-base-*.md files
+├── Extract: patterns, standards, flows, strategies
+└── Output: basepoints-knowledge.json, basepoints-knowledge-summary.md
 
 Phase 3: Extract Product Knowledge
-└── Parse: mission.md, roadmap.md, tech-stack.md
+├── Read: mission.md, roadmap.md, tech-stack.md
+├── Extract: mission, features, tech stack
+└── Output: product-knowledge.json, product-knowledge-summary.md
 
-Phase 4: Merge Knowledge & Resolve Conflicts
-├── Combine: all knowledge sources
-└── Human review: if conflicts detected
+Phase 4: Merge Knowledge
+├── Combine: basepoints + product knowledge
+├── Detect: conflicts between sources
+├── Resolve: conflicts (user interaction if needed)
+└── Output: merged-knowledge.md
 
-Phase 5: Specialize shape-spec & write-spec
-├── Replace: placeholders with actual values
-└── Inject: project-specific patterns
+Phase 5: Specialize Standards
+├── Read: extracted knowledge
+├── Update: coding-style.md, conventions.md, error-handling.md, etc.
+├── Add: project-specific patterns and examples
+├── Create: new standards if needed (e.g., template-syntax.md)
+└── Output: standards-specialization.md report
 
-Phase 6: Specialize Task Commands
-├── create-tasks
-├── implement-tasks
-└── orchestrate-tasks
+Phase 6: Specialize Agents
+├── Read: abstraction layers from basepoints
+├── Create: specialist agent per layer (e.g., ui-specialist, api-specialist)
+├── Create: registry.yml with collaboration hints
+└── Output: agents-specialization.md report
 
-Phase 7: Update Supporting Structures
-├── Standards
-├── Workflows
-└── Agents
-
-Phase 8: Specialize Standards (Enhanced)
-├── Step 5: Specialize Validation Commands
-│   ├── Detect: tech stack from project files
-│   ├── Map: to validation commands
-│   │   ├── Node.js → npm run build/test/lint
-│   │   ├── Rust → cargo build/test/clippy
-│   │   ├── Go → go build/test/vet
-│   │   └── Python → pytest, flake8, mypy
-│   └── Replace: {{PROJECT_*_COMMAND}} placeholders
-│
-└── Update: validation-commands.md
-
-Phase 9: Specialize Agents
-└── Adapt: agent behaviors for project
-
-Phase 10: Specialize Workflows
-└── Adapt: workflow complexity for project
-
-Phase 11: Adapt Structure & Finalize
-├── Run: comprehensive validation
-└── Generate: deployment report
-
-Phase 12: Optimize Prompts
-└── Generate: context sections for commands
-
-Phase 13: Apply Prompt Optimizations
-└── Inject: approved context sections into templates
-
-Phase 14: Navigate to Cleanup
+Phase 7: Navigate to Cleanup
 ├── Display: summary of accomplishments
-├── List: specialized directories
+├── List: specialized files
 └── Recommend: /cleanup-geist
 ```
+
+#### Key Design Decisions
+
+1. **No command specialization**: Commands use `@geist/` references that resolve at runtime. No need to rewrite command files.
+
+2. **No workflow specialization**: Workflows are reusable building blocks that stay generic. Specialization happens at the standards level.
+
+3. **Standards are the specialization point**: Project patterns go into standards, which commands/workflows reference.
+
+4. **Specialist agents**: Created based on abstraction layers detected in basepoints. Support multiple specialists per task for cross-layer work.
 
 #### What's Next
 
